@@ -202,6 +202,71 @@ div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:
 .result-banner{background:var(--success-bg);border:1px solid var(--success-border);border-radius:18px;padding:1rem 1.15rem;color:var(--success-text);margin-top:1.1rem;margin-bottom:1rem;font-weight:650}
 .disclaimer{background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:16px;padding:.9rem 1rem;color:var(--warning-text);font-size:.9rem;line-height:1.5}
 
+
+.item-section-title{
+  font-size:.76rem;
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--primary);
+  margin:1rem 0 .45rem 0;
+}
+.item-copy{
+  background:var(--surface-soft);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:.8rem .9rem;
+  color:var(--text);
+  line-height:1.55;
+  margin-bottom:.65rem;
+}
+.status-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:.7rem;
+  margin:.35rem 0 .9rem 0;
+}
+.status-card{
+  background:var(--surface-soft);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:.75rem .8rem;
+}
+.status-label{
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  font-weight:800;
+  color:var(--soft);
+  margin-bottom:.25rem;
+}
+.status-value{
+  font-size:.93rem;
+  font-weight:700;
+  color:var(--text);
+  line-height:1.35;
+}
+.next-action{
+  background:var(--primary-soft);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:1rem 1rem;
+  margin-top:.65rem;
+}
+.next-action-title{
+  font-size:.78rem;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  font-weight:800;
+  color:var(--primary);
+  margin-bottom:.45rem;
+}
+.next-action strong{color:var(--text)}
+.next-action p{margin:.15rem 0 .65rem 0!important;line-height:1.5}
+@media(max-width:768px){
+  .status-grid{grid-template-columns:1fr}
+}
+
 @media(max-width:768px){
   .hero{padding:1.5rem 1.25rem;border-radius:18px}
   .block-container{padding-top:1rem}
@@ -596,34 +661,69 @@ Strict rules:
                             title += f" — {price}"
 
                         with st.expander(title, expanded=(idx <= 2)):
-                            c1, c2, c3 = st.columns(3)
-                            with c1:
-                                st.markdown("**Category**")
-                                st.write(item.get("category", ""))
-                            with c2:
-                                st.markdown("**Evidence status**")
-                                st.write(item.get("evidence_status", ""))
-                            with c3:
-                                st.markdown("**Approval readiness**")
-                                st.write(item.get("approval_readiness", ""))
+                            category = item.get("category", "")
+                            evidence_status = item.get("evidence_status", "")
+                            approval_readiness = item.get("approval_readiness", "")
+                            urgency = item.get("urgency", "")
 
-                            st.markdown("**What it means**")
-                            st.write(item.get("plain_explanation", ""))
+                            st.markdown(
+                                f"""
+                                <div class="status-grid">
+                                  <div class="status-card">
+                                    <div class="status-label">Category</div>
+                                    <div class="status-value">{category}</div>
+                                  </div>
+                                  <div class="status-card">
+                                    <div class="status-label">Evidence status</div>
+                                    <div class="status-value">{evidence_status}</div>
+                                  </div>
+                                  <div class="status-card">
+                                    <div class="status-label">Approval readiness</div>
+                                    <div class="status-value">{approval_readiness}</div>
+                                  </div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
 
-                            st.markdown("**Why it may have been recommended**")
-                            st.write(item.get("why_recommended", ""))
+                            st.markdown('<div class="item-section-title">1 · Understand the item</div>', unsafe_allow_html=True)
+                            st.markdown(
+                                f'<div class="item-copy"><strong>What it means</strong><br>{item.get("plain_explanation", "")}</div>',
+                                unsafe_allow_html=True,
+                            )
+                            st.markdown(
+                                f'<div class="item-copy"><strong>Why it may have been recommended</strong><br>{item.get("why_recommended", "")}</div>',
+                                unsafe_allow_html=True,
+                            )
 
-                            st.markdown("**Urgency**")
-                            st.write(item.get("urgency", ""))
+                            st.markdown('<div class="item-section-title">2 · Assess the risk</div>', unsafe_allow_html=True)
+                            risk_c1, risk_c2 = st.columns(2)
+                            with risk_c1:
+                                st.markdown("**Urgency**")
+                                st.info(urgency)
+                            with risk_c2:
+                                st.markdown("**If delayed**")
+                                st.write(item.get("delay_risk", ""))
 
-                            st.markdown("**If delayed**")
-                            st.write(item.get("delay_risk", ""))
+                            st.markdown('<div class="item-section-title">3 · What you should verify</div>', unsafe_allow_html=True)
+                            st.markdown(
+                                f'<div class="item-copy"><strong>Evidence to request</strong><br>{item.get("evidence_to_request", "")}</div>',
+                                unsafe_allow_html=True,
+                            )
 
-                            st.markdown("**Evidence to request**")
-                            st.write(item.get("evidence_to_request", ""))
+                            st.markdown('<div class="item-section-title">4 · Your next action</div>', unsafe_allow_html=True)
+                            st.markdown(
+                                f"""
+                                <div class="next-action">
+                                  <div class="next-action-title">Ask the service advisor</div>
+                                  <p>{item.get("question_to_ask", "")}</p>
+                                  <strong>Decision guidance:</strong>
+                                  <p>{approval_readiness}</p>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
 
-                            st.markdown("**Ask the service advisor**")
-                            st.info(item.get("question_to_ask", ""))
 
                     st.markdown("### Before you approve")
                     st.write(data.get("decision_summary", ""))
