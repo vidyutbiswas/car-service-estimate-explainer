@@ -246,6 +246,33 @@ div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:
   color:var(--text);
   line-height:1.35;
 }
+
+.decision-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:.75rem;
+  margin:.75rem 0 1rem 0;
+}
+.decision-summary-card{
+  border-radius:14px;
+  padding:.9rem 1rem;
+  border:1px solid transparent;
+}
+.decision-green{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.35)}
+.decision-amber{background:rgba(245,158,11,.13);border-color:rgba(245,158,11,.38)}
+.decision-red{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35)}
+.decision-label{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;font-weight:800;margin-bottom:.2rem}
+.decision-count{font-size:1.5rem;font-weight:800;line-height:1.1}
+.decision-green .decision-label,.decision-green .decision-count{color:#16a34a}
+.decision-amber .decision-label,.decision-amber .decision-count{color:#d97706}
+.decision-red .decision-label,.decision-red .decision-count{color:#dc2626}
+
+.approval-green{background:rgba(34,197,94,.12)!important;border-color:rgba(34,197,94,.35)!important}
+.approval-amber{background:rgba(245,158,11,.13)!important;border-color:rgba(245,158,11,.38)!important}
+.approval-red{background:rgba(239,68,68,.12)!important;border-color:rgba(239,68,68,.35)!important}
+.approval-green .status-value{color:#16a34a!important}
+.approval-amber .status-value{color:#d97706!important}
+.approval-red .status-value{color:#dc2626!important}
 .next-action{
   background:var(--primary-soft);
   border:1px solid var(--border);
@@ -528,6 +555,30 @@ def extract_json(text):
     return json.loads(cleaned)
 
 
+def decision_signal(item):
+    readiness = item.get("approval_readiness", "")
+    evidence = item.get("evidence_status", "")
+    urgency = item.get("urgency", "")
+    category = item.get("category", "")
+
+    if readiness in ["Second opinion advisable", "Evidence required before approval"]:
+        return "red", "🔴", "Get proof before approval"
+
+    if category == "Safety-related item" and (
+        urgency == "High" or evidence in ["Evidence missing", "Inspection/measurement required"]
+    ):
+        return "red", "🔴", "Get proof before approval"
+
+    if readiness == "Clarification needed" or evidence in [
+        "Evidence missing",
+        "Inspection/measurement required",
+        "Manufacturer schedule should be checked",
+    ]:
+        return "amber", "🟠", "Clarify before approval"
+
+    return "green", "🟢", "Proceed after discussion"
+
+
 if submitted:
     if not estimate.strip():
         st.warning("Please paste at least one service estimate item.")
@@ -637,6 +688,11 @@ Strict rules:
                         if x.get("approval_readiness") == "Second opinion advisable"
                     )
 
+                    signal_counts = {"green": 0, "amber": 0, "red": 0}
+                    for x in items:
+                        signal, _, _ = decision_signal(x)
+                        signal_counts[signal] += 1
+
                     m1, m2, m3, m4 = st.columns(4)
                     with m1:
                         st.metric("Quoted total", f"₹{quoted_total:,.0f}" if quoted_total else "Not available")
@@ -647,6 +703,26 @@ Strict rules:
                     with m4:
                         st.metric("Possible add-ons", optional_count)
 
+                    st.markdown(
+                        f"""
+                        <div class="decision-summary-grid">
+                          <div class="decision-summary-card decision-red">
+                            <div class="decision-label">Needs proof / caution</div>
+                            <div class="decision-count">🔴 {signal_counts["red"]}</div>
+                          </div>
+                          <div class="decision-summary-card decision-amber">
+                            <div class="decision-label">Clarify first</div>
+                            <div class="decision-count">🟠 {signal_counts["amber"]}</div>
+                          </div>
+                          <div class="decision-summary-card decision-green">
+                            <div class="decision-label">Proceed after discussion</div>
+                            <div class="decision-count">🟢 {signal_counts["green"]}</div>
+                          </div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+
                     if second_opinion_count:
                         st.info(
                             f"{second_opinion_count} item(s) may benefit from an independent second opinion before approval."
@@ -655,10 +731,12 @@ Strict rules:
                     st.markdown("### Item-by-item decision view")
 
                     for idx, item in enumerate(items, 1):
-                        title = f"{idx}. {item.get('item', 'Service item')}"
+                        signal, signal_icon, signal_label = decision_signal(item)
+                        title = f"{signal_icon} {idx}. {item.get('item', 'Service item')}"
                         price = item.get("quoted_price", "Not provided")
                         if price and price != "Not provided":
                             title += f" — {price}"
+                        title += f" · {signal_label}"
 
                         with st.expander(title, expanded=(idx <= 2)):
                             category = item.get("category", "")
@@ -677,9 +755,9 @@ Strict rules:
                                     <div class="status-label">Evidence status</div>
                                     <div class="status-value">{evidence_status}</div>
                                   </div>
-                                  <div class="status-card">
+                                  <div class="status-card approval-{signal}">
                                     <div class="status-label">Approval readiness</div>
-                                    <div class="status-value">{approval_readiness}</div>
+                                    <div class="status-value">{signal_icon} {signal_label}</div>
                                   </div>
                                 </div>
                                 """,
@@ -718,7 +796,7 @@ Strict rules:
                                   <div class="next-action-title">Ask the service advisor</div>
                                   <p>{item.get("question_to_ask", "")}</p>
                                   <strong>Decision guidance:</strong>
-                                  <p>{approval_readiness}</p>
+                                  <p>{signal_icon} {signal_label}</p>
                                 </div>
                                 """,
                                 unsafe_allow_html=True,
