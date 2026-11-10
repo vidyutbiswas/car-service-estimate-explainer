@@ -176,6 +176,22 @@ div[data-testid="stNumberInput"] button{
   background:var(--surface-soft)!important;color:var(--text)!important;border-color:var(--border)!important
 }
 
+div[data-baseweb="select"] > div,
+div[data-testid="stMultiSelect"] [data-baseweb="select"] > div{
+  background:var(--input-bg)!important;
+  color:var(--input-text)!important;
+  border-color:var(--border)!important;
+  border-radius:12px!important;
+}
+div[data-baseweb="select"] span,
+div[data-baseweb="select"] input{
+  color:var(--input-text)!important;
+  -webkit-text-fill-color:var(--input-text)!important;
+}
+div[data-testid="stSlider"]{
+  color:var(--text)!important;
+}
+
 div[data-testid="stFormSubmitButton"]>button{
   border-radius:12px!important;min-height:3rem!important;font-weight:750!important;
   background:linear-gradient(135deg,var(--primary),var(--primary2))!important;
@@ -194,6 +210,80 @@ div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:
     """,
     unsafe_allow_html=True,
 )
+
+
+VEHICLE_MAKES = [
+    "Tata", "Maruti Suzuki", "Hyundai", "Mahindra", "Toyota", "Kia",
+    "Honda", "Skoda", "Volkswagen", "MG", "Renault", "Nissan",
+    "Jeep", "Citroen", "BMW", "Mercedes-Benz", "Audi", "Volvo",
+    "Other / Not listed"
+]
+
+VEHICLE_MODELS = [
+    "Not specified",
+    "Tata Harrier", "Tata Safari", "Tata Nexon", "Tata Punch", "Tata Altroz", "Tata Tiago", "Tata Tigor",
+    "Maruti Suzuki Swift", "Maruti Suzuki Baleno", "Maruti Suzuki Dzire", "Maruti Suzuki Brezza",
+    "Maruti Suzuki Grand Vitara", "Maruti Suzuki Fronx", "Maruti Suzuki Ertiga", "Maruti Suzuki WagonR",
+    "Hyundai Creta", "Hyundai Venue", "Hyundai i20", "Hyundai Grand i10 Nios", "Hyundai Verna", "Hyundai Alcazar",
+    "Mahindra XUV700", "Mahindra Scorpio-N", "Mahindra Thar", "Mahindra XUV 3XO", "Mahindra Bolero",
+    "Toyota Innova Crysta", "Toyota Innova Hycross", "Toyota Fortuner", "Toyota Urban Cruiser Hyryder", "Toyota Glanza",
+    "Kia Seltos", "Kia Sonet", "Kia Carens",
+    "Honda City", "Honda Amaze", "Honda Elevate",
+    "Skoda Kushaq", "Skoda Slavia", "Volkswagen Taigun", "Volkswagen Virtus",
+    "MG Hector", "MG Astor", "MG ZS EV", "Renault Kiger", "Renault Triber", "Nissan Magnite",
+    "Jeep Compass", "Citroen C3", "Citroen C5 Aircross",
+    "BMW 3 Series", "BMW X1", "BMW X3", "Mercedes-Benz C-Class", "Mercedes-Benz GLA",
+    "Audi A4", "Audi Q3", "Volvo XC40",
+    "Other / Not listed"
+]
+
+VEHICLE_TYPES = [
+    "SUV", "Compact SUV", "Hatchback", "Sedan", "MUV / MPV",
+    "Coupe / Performance", "Pickup / Utility", "Other / Not sure"
+]
+
+FUEL_TYPES = ["Petrol", "Diesel", "CNG", "Hybrid", "Electric", "Not sure"]
+
+SERVICE_CENTRE_TYPES = [
+    "Authorized service centre",
+    "Independent multi-brand garage",
+    "Local mechanic / workshop",
+    "Not sure"
+]
+
+WARRANTY_OPTIONS = [
+    "In manufacturer warranty",
+    "Extended warranty",
+    "Out of warranty",
+    "Not sure"
+]
+
+LAST_SERVICE_OPTIONS = [
+    "Less than 6 months ago",
+    "6–12 months ago",
+    "12–24 months ago",
+    "More than 24 months ago",
+    "First service / recently purchased",
+    "Don't remember"
+]
+
+SYMPTOM_OPTIONS = [
+    "No noticeable symptoms",
+    "Brake noise / squeal",
+    "Steering vibration",
+    "Vehicle pulls to one side",
+    "Engine warning light",
+    "Other dashboard warning light",
+    "Poor fuel economy",
+    "Rough idle",
+    "Slow engine start / weak battery",
+    "AC cooling or airflow issue",
+    "Suspension noise",
+    "Unusual engine noise",
+    "Power loss / hesitation",
+    "Fluid leak",
+    "Other / not sure"
+]
 
 st.markdown(
     """
@@ -259,44 +349,70 @@ st.subheader("Tell us about the car and the recommended work")
 
 with st.container(border=True):
     st.markdown("##### Vehicle details")
-    st.caption("Add a little context so the AI can give more specific decision support.")
+    st.caption("Most fields are quick selections. Only paste the service estimate at the end.")
 
     with st.form("estimate_form"):
-        col1, col2 = st.columns(2)
+        r1c1, r1c2, r1c3 = st.columns(3)
 
-        with col1:
-            brand = st.text_input("Car brand", placeholder="e.g. Tata")
-            model = st.text_input("Car model", placeholder="e.g. Harrier")
-            fuel_type = st.selectbox(
-                "Fuel type",
-                ["Not specified", "Petrol", "Diesel", "Hybrid", "Electric"],
+        with r1c1:
+            vehicle_type = st.selectbox("Vehicle type", VEHICLE_TYPES, index=0)
+        with r1c2:
+            brand = st.selectbox("Car maker", VEHICLE_MAKES, index=0)
+        with r1c3:
+            model = st.selectbox(
+                "Car model",
+                VEHICLE_MODELS,
+                index=1,
+                help="The list is searchable — start typing the model name."
             )
 
-        with col2:
-            year = st.number_input("Model year", min_value=1990, max_value=2030, value=2022)
-            mileage = st.number_input("Mileage (km)", min_value=0, step=1000)
+        r2c1, r2c2, r2c3 = st.columns(3)
+
+        with r2c1:
+            year = st.selectbox(
+                "Model year",
+                list(range(2026, 1994, -1)),
+                index=4,
+            )
+        with r2c2:
+            fuel_type = st.selectbox("Fuel type", FUEL_TYPES, index=1)
+        with r2c3:
+            mileage = st.slider(
+                "Approx. mileage (km)",
+                min_value=0,
+                max_value=300000,
+                value=40000,
+                step=1000,
+            )
+
+        r3c1, r3c2, r3c3 = st.columns(3)
+
+        with r3c1:
             service_centre = st.selectbox(
                 "Service centre type",
-                ["Not specified", "Authorized service centre", "Independent garage"],
+                SERVICE_CENTRE_TYPES,
+                index=0,
             )
-
-        col3, col4 = st.columns(2)
-        with col3:
+        with r3c2:
             warranty_status = st.selectbox(
                 "Warranty status",
-                ["Not sure / not specified", "In warranty", "Out of warranty"],
+                WARRANTY_OPTIONS,
+                index=3,
             )
-        with col4:
-            last_service = st.text_input(
-                "Last service (optional)",
-                placeholder="e.g. 32,000 km / 8 months ago",
+        with r3c3:
+            last_service = st.selectbox(
+                "Last service",
+                LAST_SERVICE_OPTIONS,
+                index=1,
             )
 
-        symptoms = st.text_area(
-            "Current symptoms (optional)",
-            height=90,
-            placeholder="e.g. brake noise, vibration, warning light, poor mileage — or leave blank",
+        symptoms_selected = st.multiselect(
+            "Current symptoms (select all that apply)",
+            SYMPTOM_OPTIONS,
+            default=["No noticeable symptoms"],
+            help="Choose the symptoms you currently notice. You can select more than one."
         )
+        symptoms = ", ".join(symptoms_selected) if symptoms_selected else "None selected"
 
         st.markdown("##### Service estimate / job card")
         st.caption("Paste the line items exactly as shown on the estimate. Prices are optional.")
@@ -361,15 +477,16 @@ You are an automotive service estimate decision-support assistant for private ca
 Use ONLY the user-provided facts below as vehicle facts. Do not round, alter, infer, or substitute them.
 
 Vehicle context:
-- Brand: {brand or "Not provided"}
-- Model: {model or "Not provided"}
+- Vehicle type: {vehicle_type}
+- Brand: {brand}
+- Model: {model}
 - Model year: {year}
-- Mileage: {mileage} km
+- Mileage: approximately {mileage} km
 - Fuel type: {fuel_type}
 - Service centre type: {service_centre}
 - Warranty status: {warranty_status}
-- Last service: {last_service or "Not provided"}
-- Current symptoms: {symptoms or "None provided"}
+- Last service: {last_service}
+- Current symptoms: {symptoms}
 
 Service estimate / job-card text:
 {estimate}
@@ -399,7 +516,7 @@ Return ONLY valid JSON with this exact structure:
 
 Strict rules:
 - Keep every estimate item in the same order as supplied.
-- Preserve user-entered mileage, year, brand, model, item names and prices exactly.
+- Preserve the selected vehicle context, item names and quoted prices exactly. Treat mileage as approximate because the UI captures it in 1,000 km steps.
 - Do not invent manufacturer schedules, inspection results, measurements, symptoms, market prices, or service history.
 - Do not claim a quoted price is fair, expensive or cheap because you do not have verified live market pricing.
 - Do not diagnose the vehicle remotely.
