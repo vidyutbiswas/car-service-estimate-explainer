@@ -448,6 +448,23 @@ with st.container(border=True):
     st.caption("Most fields are quick selections. Only paste the service estimate at the end.")
 
     with st.form("estimate_form"):
+        st.markdown("##### Tester details")
+        st.caption(
+            "Used only to link this MVP test with the saved estimate and feedback. "
+            "Name and email are stored in the private research sheet and are not sent to the AI model."
+        )
+
+        user_c1, user_c2 = st.columns(2)
+        with user_c1:
+            user_name = st.text_input("Name *", placeholder="Enter your name")
+        with user_c2:
+            user_email = st.text_input("Email *", placeholder="name@example.com")
+
+        consent = st.checkbox(
+            "I agree that my name, email, estimate details and feedback may be stored for this course MVP evaluation."
+        )
+
+        st.markdown("##### Vehicle details")
         r1c1, r1c2, r1c3 = st.columns(3)
 
         with r1c1:
@@ -574,6 +591,13 @@ def append_usage_row(row):
     spreadsheet = client.open_by_url(gsheets["spreadsheet"])
     worksheet_name = gsheets.get("worksheet", "Sheet1")
     worksheet = spreadsheet.worksheet(worksheet_name)
+
+    # Preserve the existing sheet structure and append tester identity columns at V/W.
+    worksheet.update(
+        range_name="V1:W1",
+        values=[["name", "email"]],
+        value_input_option="USER_ENTERED",
+    )
     worksheet.append_row(row, value_input_option="USER_ENTERED")
 
 
@@ -605,6 +629,10 @@ def update_feedback_for_session(session_id, useful, decision_help, comment):
     )
 
 
+def is_valid_email(value):
+    return bool(re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", value.strip()))
+
+
 def decision_signal(item):
     readiness = item.get("approval_readiness", "")
     evidence = item.get("evidence_status", "")
@@ -630,7 +658,13 @@ def decision_signal(item):
 
 
 if submitted:
-    if not estimate.strip():
+    if not user_name.strip():
+        st.warning("Please enter your name.")
+    elif not is_valid_email(user_email):
+        st.warning("Please enter a valid email address.")
+    elif not consent:
+        st.warning("Please confirm the consent checkbox before analysing the estimate.")
+    elif not estimate.strip():
         st.warning("Please paste at least one service estimate item.")
     else:
         try:
@@ -768,6 +802,8 @@ Strict rules:
                         "",
                         "",
                         "",
+                        user_name.strip(),
+                        user_email.strip().lower(),
                     ]
 
                     try:
@@ -952,8 +988,8 @@ if st.session_state.get("feedback_available"):
     else:
         with st.container(border=True):
             st.caption(
-                "Your feedback is linked only to this anonymous analysis session. "
-                "Please do not enter personal or vehicle-identifying information."
+                "Your feedback is linked to the name and email entered for this MVP test. "
+                "Please do not include registration numbers, VINs, phone numbers or other sensitive details in comments."
             )
 
             with st.form("feedback_form"):
@@ -970,7 +1006,7 @@ if st.session_state.get("feedback_available"):
                 feedback_comment = st.text_area(
                     "Anything confusing or one improvement you would suggest? (optional)",
                     max_chars=500,
-                    placeholder="Short feedback only — no name, phone, registration number or VIN.",
+                    placeholder="Short feedback only — avoid registration number, VIN, phone number or other sensitive details.",
                 )
                 feedback_submit = st.form_submit_button(
                     "Submit feedback",
