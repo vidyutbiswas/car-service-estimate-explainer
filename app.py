@@ -452,6 +452,36 @@ with st.container(border=True):
     st.markdown("##### Vehicle details")
     st.caption("Most fields are quick selections. Only paste the service estimate at the end.")
 
+    st.markdown("##### Choose your car")
+    maker_c1, maker_c2 = st.columns(2)
+
+    with maker_c1:
+        brand = st.selectbox(
+            "Car maker",
+            VEHICLE_MAKES,
+            index=0,
+            key="car_maker_selector",
+        )
+
+    available_models = MODELS_BY_MAKE.get(brand, ["Other / Not listed"])
+
+    with maker_c2:
+        selected_model = st.selectbox(
+            "Car model",
+            available_models,
+            index=0,
+            key=f"car_model_selector_{brand}",
+            help="Only models from the selected manufacturer are shown."
+        )
+
+    model = (
+        selected_model
+        if brand == "Other / Not listed"
+        else f"{brand} {selected_model}"
+    )
+
+    st.caption("Changing the car maker automatically refreshes the available model list.")
+
     with st.form("estimate_form"):
         st.markdown("##### Tester details")
         st.caption(
@@ -470,26 +500,16 @@ with st.container(border=True):
         )
 
         st.markdown("##### Vehicle details")
-        r1c1, r1c2, r1c3 = st.columns(3)
+        r1c1, r1c2 = st.columns(2)
 
         with r1c1:
             vehicle_type = st.selectbox("Vehicle type", VEHICLE_TYPES, index=0)
         with r1c2:
-            brand = st.selectbox("Car maker", VEHICLE_MAKES, index=0)
-
-        available_models = MODELS_BY_MAKE.get(brand, ["Other / Not listed"])
-
-        with r1c3:
-            selected_model = st.selectbox(
-                "Car model",
-                available_models,
-                index=0,
-                help="Only models from the selected manufacturer are shown."
-            )
-            model = (
-                selected_model
-                if brand == "Other / Not listed"
-                else f"{brand} {selected_model}"
+            st.text_input(
+                "Selected car",
+                value=model,
+                disabled=True,
+                help="This is based on the maker and model selected above."
             )
 
         r2c1, r2c2, r2c3 = st.columns(3)
