@@ -309,39 +309,80 @@ div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:
 )
 
 
-VEHICLE_MAKES = [
-    "Tata", "Maruti Suzuki", "Hyundai", "Mahindra", "Toyota", "Kia",
-    "Honda", "Skoda", "Volkswagen", "MG", "Renault", "Nissan",
-    "Jeep", "Citroen", "BMW", "Mercedes-Benz", "Audi", "Volvo",
-    "Other / Not listed"
-]
-
-MODELS_BY_MAKE = {
-    "Tata": ["Harrier", "Safari", "Nexon", "Punch", "Altroz", "Tiago", "Tigor", "Curvv"],
-    "Maruti Suzuki": ["Swift", "Baleno", "Dzire", "Brezza", "Grand Vitara", "Fronx", "Ertiga", "WagonR", "Celerio", "Alto K10"],
-    "Hyundai": ["Creta", "Venue", "i20", "Grand i10 Nios", "Verna", "Alcazar", "Exter", "Aura"],
-    "Mahindra": ["XUV700", "Scorpio-N", "Thar", "XUV 3XO", "Bolero", "Scorpio Classic"],
-    "Toyota": ["Innova Crysta", "Innova Hycross", "Fortuner", "Urban Cruiser Hyryder", "Glanza", "Rumion"],
-    "Kia": ["Seltos", "Sonet", "Carens", "Carnival"],
-    "Honda": ["City", "Amaze", "Elevate"],
-    "Skoda": ["Kushaq", "Slavia", "Kodiaq"],
-    "Volkswagen": ["Taigun", "Virtus", "Tiguan"],
-    "MG": ["Hector", "Astor", "ZS EV", "Comet EV", "Gloster"],
-    "Renault": ["Kiger", "Triber", "Kwid"],
-    "Nissan": ["Magnite", "X-Trail"],
-    "Jeep": ["Compass", "Meridian"],
-    "Citroen": ["C3", "C3 Aircross", "C5 Aircross"],
-    "BMW": ["3 Series", "5 Series", "X1", "X3", "X5"],
-    "Mercedes-Benz": ["C-Class", "E-Class", "GLA", "GLC", "GLE"],
-    "Audi": ["A4", "A6", "Q3", "Q5", "Q7"],
-    "Volvo": ["XC40", "XC60", "XC90"],
-    "Other / Not listed": ["Other / Not listed"],
+VEHICLE_CATALOG = {
+    "Hatchback": {
+        "Tata": ["Altroz", "Tiago"],
+        "Maruti Suzuki": ["Swift", "Baleno", "WagonR", "Celerio", "Alto K10"],
+        "Hyundai": ["i20", "Grand i10 Nios"],
+        "Toyota": ["Glanza"],
+        "MG": ["Comet EV"],
+        "Renault": ["Kwid"],
+    },
+    "Sedan": {
+        "Tata": ["Tigor"],
+        "Maruti Suzuki": ["Dzire"],
+        "Hyundai": ["Verna", "Aura"],
+        "Honda": ["City", "Amaze"],
+        "Skoda": ["Slavia"],
+        "Volkswagen": ["Virtus"],
+        "BMW": ["3 Series", "5 Series"],
+        "Mercedes-Benz": ["C-Class", "E-Class"],
+        "Audi": ["A4", "A6"],
+    },
+    "Compact SUV": {
+        "Tata": ["Nexon", "Punch", "Curvv"],
+        "Maruti Suzuki": ["Brezza", "Fronx"],
+        "Hyundai": ["Venue", "Exter"],
+        "Mahindra": ["XUV 3XO"],
+        "Kia": ["Sonet"],
+        "Honda": ["Elevate"],
+        "Skoda": ["Kushaq"],
+        "Volkswagen": ["Taigun"],
+        "MG": ["Astor", "ZS EV"],
+        "Renault": ["Kiger"],
+        "Nissan": ["Magnite"],
+        "Citroen": ["C3 Aircross"],
+        "BMW": ["X1"],
+        "Mercedes-Benz": ["GLA"],
+        "Audi": ["Q3"],
+        "Volvo": ["XC40"],
+    },
+    "SUV": {
+        "Tata": ["Harrier", "Safari"],
+        "Maruti Suzuki": ["Grand Vitara"],
+        "Hyundai": ["Creta", "Alcazar"],
+        "Mahindra": ["XUV700", "Scorpio-N", "Thar", "Scorpio Classic"],
+        "Toyota": ["Fortuner", "Urban Cruiser Hyryder"],
+        "Kia": ["Seltos"],
+        "Skoda": ["Kodiaq"],
+        "Volkswagen": ["Tiguan"],
+        "MG": ["Hector", "Gloster"],
+        "Nissan": ["X-Trail"],
+        "Jeep": ["Compass", "Meridian"],
+        "Citroen": ["C5 Aircross"],
+        "BMW": ["X3", "X5"],
+        "Mercedes-Benz": ["GLC", "GLE"],
+        "Audi": ["Q5", "Q7"],
+        "Volvo": ["XC60", "XC90"],
+    },
+    "MUV / MPV": {
+        "Maruti Suzuki": ["Ertiga"],
+        "Toyota": ["Innova Crysta", "Innova Hycross", "Rumion"],
+        "Kia": ["Carens", "Carnival"],
+    },
+    "Coupe / Performance": {
+        "Other / Not listed": ["Other / Not listed"],
+    },
+    "Pickup / Utility": {
+        "Mahindra": ["Bolero"],
+        "Other / Not listed": ["Other / Not listed"],
+    },
+    "Other / Not sure": {
+        "Other / Not listed": ["Other / Not listed"],
+    },
 }
 
-VEHICLE_TYPES = [
-    "SUV", "Compact SUV", "Hatchback", "Sedan", "MUV / MPV",
-    "Coupe / Performance", "Pickup / Utility", "Other / Not sure"
-]
+VEHICLE_TYPES = list(VEHICLE_CATALOG.keys())
 
 FUEL_TYPES = ["Petrol", "Diesel", "CNG", "Hybrid", "Electric", "Not sure"]
 
@@ -453,25 +494,36 @@ with st.container(border=True):
     st.caption("Most fields are quick selections. Only paste the service estimate at the end.")
 
     st.markdown("##### Choose your car")
-    maker_c1, maker_c2 = st.columns(2)
+    car_c1, car_c2, car_c3 = st.columns(3)
 
-    with maker_c1:
-        brand = st.selectbox(
-            "Car maker",
-            VEHICLE_MAKES,
+    with car_c1:
+        vehicle_type = st.selectbox(
+            "Vehicle type",
+            VEHICLE_TYPES,
             index=0,
-            key="car_maker_selector",
+            key="vehicle_type_selector",
         )
 
-    available_models = MODELS_BY_MAKE.get(brand, ["Other / Not listed"])
+    available_makes = list(VEHICLE_CATALOG[vehicle_type].keys())
 
-    with maker_c2:
+    with car_c2:
+        brand = st.selectbox(
+            "Car maker",
+            available_makes,
+            index=0,
+            key=f"car_maker_selector_{vehicle_type}",
+            help="Only manufacturers with mapped models for the selected vehicle type are shown.",
+        )
+
+    available_models = VEHICLE_CATALOG[vehicle_type][brand]
+
+    with car_c3:
         selected_model = st.selectbox(
             "Car model",
             available_models,
             index=0,
-            key=f"car_model_selector_{brand}",
-            help="Only models from the selected manufacturer are shown."
+            key=f"car_model_selector_{vehicle_type}_{brand}",
+            help="Only models matching the selected vehicle type and manufacturer are shown.",
         )
 
     model = (
@@ -480,7 +532,9 @@ with st.container(border=True):
         else f"{brand} {selected_model}"
     )
 
-    st.caption("Changing the car maker automatically refreshes the available model list.")
+    st.caption(
+        "Vehicle type filters the manufacturer list, and manufacturer filters the model list."
+    )
 
     with st.form("estimate_form"):
         st.markdown("##### Tester details")
@@ -491,26 +545,16 @@ with st.container(border=True):
 
         user_c1, user_c2 = st.columns(2)
         with user_c1:
-            user_name = st.text_input("Name *", placeholder="Enter your name")
+            user_name = st.text_input("Name *", placeholder="Enter your name", max_chars=80)
         with user_c2:
-            user_email = st.text_input("Email *", placeholder="name@example.com")
+            user_email = st.text_input("Email *", placeholder="name@example.com", max_chars=254)
 
         consent = st.checkbox(
             "I agree that my name, email, estimate details and feedback may be stored for this course MVP evaluation."
         )
 
         st.markdown("##### Vehicle details")
-        r1c1, r1c2 = st.columns(2)
-
-        with r1c1:
-            vehicle_type = st.selectbox("Vehicle type", VEHICLE_TYPES, index=0)
-        with r1c2:
-            st.text_input(
-                "Selected car",
-                value=model,
-                disabled=True,
-                help="This is based on the maker and model selected above."
-            )
+        st.caption(f"Selected vehicle: {vehicle_type} · {model}")
 
         r2c1, r2c2, r2c3 = st.columns(3)
 
@@ -566,6 +610,7 @@ with st.container(border=True):
         estimate = st.text_area(
             "Estimate details",
             height=240,
+            max_chars=6000,
             label_visibility="collapsed",
             placeholder=(
                 "Example:\n"
@@ -669,9 +714,33 @@ def update_feedback_for_session(session_id, useful, decision_help, comment):
     )
 
 
-def is_valid_email(value):
-    return bool(re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", value.strip()))
+def is_valid_name(value):
+    value = value.strip()
+    if len(value) < 2 or len(value) > 80:
+        return False
+    return bool(re.fullmatch(r"[A-Za-zÀ-ÖØ-öø-ÿ.' -]+", value))
 
+
+def is_valid_email(value):
+    value = value.strip()
+    if len(value) > 254:
+        return False
+    return bool(re.fullmatch(r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+", value))
+
+
+def is_valid_estimate(value):
+    value = value.strip()
+    if len(value) < 10 or len(value) > 6000:
+        return False
+    return bool(re.search(r"[A-Za-z]", value))
+
+
+def is_valid_vehicle_selection(vehicle_type, brand, selected_model):
+    return (
+        vehicle_type in VEHICLE_CATALOG
+        and brand in VEHICLE_CATALOG[vehicle_type]
+        and selected_model in VEHICLE_CATALOG[vehicle_type][brand]
+    )
 
 def decision_signal(item):
     readiness = item.get("approval_readiness", "")
@@ -698,14 +767,16 @@ def decision_signal(item):
 
 
 if submitted:
-    if not user_name.strip():
-        st.warning("Please enter your name.")
+    if not is_valid_name(user_name):
+        st.warning("Please enter a valid name using letters, spaces, apostrophes, hyphens or periods.")
     elif not is_valid_email(user_email):
-        st.warning("Please enter a valid email address.")
+        st.warning("Please enter a valid email address, for example name@example.com.")
     elif not consent:
         st.warning("Please confirm the consent checkbox before analysing the estimate.")
-    elif not estimate.strip():
-        st.warning("Please paste at least one service estimate item.")
+    elif not is_valid_vehicle_selection(vehicle_type, brand, selected_model):
+        st.warning("The selected vehicle type, manufacturer and model combination is invalid. Please select the car again.")
+    elif not is_valid_estimate(estimate):
+        st.warning("Please enter a valid service estimate between 10 and 6,000 characters.")
     else:
         try:
             api_key = st.secrets["GEMINI_API_KEY"]
