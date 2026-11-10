@@ -1,5 +1,7 @@
 import streamlit as st
 from google import genai
+import json
+import re
 
 st.set_page_config(
     page_title="Car Service Estimate Explainer",
@@ -257,7 +259,7 @@ st.subheader("Tell us about the car and the recommended work")
 
 with st.container(border=True):
     st.markdown("##### Vehicle details")
-    st.caption("Only basic context is needed for this MVP.")
+    st.caption("Add a little context so the AI can give more specific decision support.")
 
     with st.form("estimate_form"):
         col1, col2 = st.columns(2)
@@ -265,10 +267,36 @@ with st.container(border=True):
         with col1:
             brand = st.text_input("Car brand", placeholder="e.g. Tata")
             model = st.text_input("Car model", placeholder="e.g. Harrier")
+            fuel_type = st.selectbox(
+                "Fuel type",
+                ["Not specified", "Petrol", "Diesel", "Hybrid", "Electric"],
+            )
 
         with col2:
             year = st.number_input("Model year", min_value=1990, max_value=2030, value=2022)
             mileage = st.number_input("Mileage (km)", min_value=0, step=1000)
+            service_centre = st.selectbox(
+                "Service centre type",
+                ["Not specified", "Authorized service centre", "Independent garage"],
+            )
+
+        col3, col4 = st.columns(2)
+        with col3:
+            warranty_status = st.selectbox(
+                "Warranty status",
+                ["Not sure / not specified", "In warranty", "Out of warranty"],
+            )
+        with col4:
+            last_service = st.text_input(
+                "Last service (optional)",
+                placeholder="e.g. 32,000 km / 8 months ago",
+            )
+
+        symptoms = st.text_area(
+            "Current symptoms (optional)",
+            height=90,
+            placeholder="e.g. brake noise, vibration, warning light, poor mileage — or leave blank",
+        )
 
         st.markdown("##### Service estimate / job card")
         st.caption("Paste the line items exactly as shown on the estimate. Prices are optional.")
@@ -286,7 +314,7 @@ with st.container(border=True):
         )
 
         submitted = st.form_submit_button(
-            "✨ Explain My Estimate",
+            "✨ Analyse My Estimate",
             type="primary",
             use_container_width=True,
         )
@@ -294,6 +322,30 @@ with st.container(border=True):
 st.caption(
     "Tip: better input gives better guidance. Include the exact line items and quoted prices where available."
 )
+
+def parse_quoted_total(text):
+    amounts = []
+    patterns = [
+        r"₹\s*([0-9][0-9,]*(?:\.\d{1,2})?)",
+        r"(?i)rs\.?\s*([0-9][0-9,]*(?:\.\d{1,2})?)",
+        r"(?i)inr\s*([0-9][0-9,]*(?:\.\d{1,2})?)",
+    ]
+    for pattern in patterns:
+        for value in re.findall(pattern, text):
+            try:
+                amounts.append(float(value.replace(",", "")))
+            except ValueError:
+                pass
+    return sum(amounts)
+
+
+def extract_json(text):
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^\s*```(?:json)?\s*", "", cleaned, flags=re.I)
+        cleaned = re.sub(r"\s*```\s*$", "", cleaned)
+    return json.loads(cleaned)
+
 
 if submitted:
     if not estimate.strip():
@@ -304,45 +356,56 @@ if submitted:
             client = genai.Client(api_key=api_key)
 
             prompt = f"""
-You are an automotive service estimate explanation assistant for private car owners.
+You are an automotive service estimate decision-support assistant for private car owners.
 
-Use ONLY the user-provided facts below as vehicle facts. Copy them exactly and do not round, alter, infer, or substitute any value.
+Use ONLY the user-provided facts below as vehicle facts. Do not round, alter, infer, or substitute them.
 
-Vehicle details:
+Vehicle context:
 - Brand: {brand or "Not provided"}
 - Model: {model or "Not provided"}
 - Model year: {year}
 - Mileage: {mileage} km
+- Fuel type: {fuel_type}
+- Service centre type: {service_centre}
+- Warranty status: {warranty_status}
+- Last service: {last_service or "Not provided"}
+- Current symptoms: {symptoms or "None provided"}
 
 Service estimate / job-card text:
 {estimate}
 
-Your job is to help the customer understand the estimate and prepare better questions for the service advisor. You are NOT diagnosing the vehicle and you do NOT have access to manufacturer service schedules, inspection data, service history, diagnostic reports, measurements, or live market pricing unless explicitly included in the user's text.
+Return ONLY valid JSON with this exact structure:
+{{
+  "items": [
+    {{
+      "item": "exact estimate line-item name",
+      "quoted_price": "exact quoted price if present, otherwise Not provided",
+      "category": "Routine maintenance | Condition-based repair | Safety-related item | Diagnostic/check | Optional/add-on treatment | Cannot classify without evidence",
+      "plain_explanation": "short plain-language explanation",
+      "why_recommended": "conditional explanation using may/could",
+      "evidence_status": "Enough evidence in estimate | Evidence missing | Inspection/measurement required | Manufacturer schedule should be checked",
+      "approval_readiness": "Ready to discuss/approve | Clarification needed | Evidence required before approval | Second opinion advisable",
+      "urgency": "High | Medium | Low | Cannot determine from estimate alone",
+      "delay_risk": "possible consequence if delayed, without certainty",
+      "evidence_to_request": "specific evidence/measurement/report to ask for",
+      "question_to_ask": "one concise question for the service advisor"
+    }}
+  ],
+  "top_questions": ["maximum 5 highest-priority questions"],
+  "decision_summary": "2-4 sentence summary focused on what the customer should clarify before approval",
+  "possible_optional_addons": ["item names that appear optional/add-on based only on supplied information"],
+  "second_opinion_items": ["item names where a second opinion may be useful"]
+}}
 
-For each service item, provide:
-1. What it means — plain-language explanation
-2. Why it may have been recommended — use conditional language such as "may" or "could"
-3. Urgency — choose only:
-   - High if the user-provided estimate itself contains clear evidence of an immediate safety/operability issue
-   - Medium if attention may reasonably be needed but the estimate does not prove immediate urgency
-   - Low if it appears non-urgent from the supplied information
-   - Cannot determine from estimate alone whenever inspection evidence is required
-4. What could happen if delayed — describe possibilities, not certainties
-5. Evidence to ask for — measurements, photos, diagnostic reports, worn-part inspection, manufacturer schedule, etc.
-6. One or two specific questions to ask the service advisor
-
-Then provide a short section called "Before You Approve" with the most important clarifications the customer should get.
-
-Strict guardrails:
-- Preserve every user-entered fact exactly, especially mileage, year, brand, model, item names, and quoted prices.
-- Never claim an item is part of the manufacturer's official service schedule unless that schedule was supplied in the input.
-- Never claim that a component is "always" replaced with another component.
-- Never invent measurements, inspection findings, diagnostic codes, manufacturer requirements, prices, service history, symptoms, or age-related conclusions.
-- Do not state that a repair is definitely necessary or unnecessary unless the supplied estimate itself proves it.
-- If necessity or urgency depends on inspection evidence, say "Cannot determine from estimate alone."
-- Avoid unsupported generalisations such as fixed battery life, exact replacement intervals, or claims that skipping a treatment is harmless.
-- Encourage professional inspection where appropriate.
-- Keep the response concise, practical, and decision-oriented.
+Strict rules:
+- Keep every estimate item in the same order as supplied.
+- Preserve user-entered mileage, year, brand, model, item names and prices exactly.
+- Do not invent manufacturer schedules, inspection results, measurements, symptoms, market prices, or service history.
+- Do not claim a quoted price is fair, expensive or cheap because you do not have verified live market pricing.
+- Do not diagnose the vehicle remotely.
+- If necessity depends on inspection evidence, use "Evidence required before approval" and "Cannot determine from estimate alone".
+- "Ready to discuss/approve" means the information appears sufficient for an informed discussion; it is NOT a mechanical approval or diagnosis.
+- Use "Second opinion advisable" sparingly, for high-cost/condition-based work or unclear add-ons where independent confirmation could materially help.
 """
 
             response = None
@@ -353,7 +416,7 @@ Strict guardrails:
                 "gemini-3.5-flash-lite",
             ]
 
-            with st.spinner("Analysing your service estimate..."):
+            with st.spinner("Analysing your estimate and preparing a decision summary..."):
                 for model_name in models_to_try:
                     try:
                         response = client.models.generate_content(
@@ -366,28 +429,122 @@ Strict guardrails:
                         last_error = exc
 
             if response and response.text:
-                st.markdown(
-                    '<div class="result-banner">✓ Estimate explained successfully. Review the guidance below before speaking with your service advisor.</div>',
-                    unsafe_allow_html=True,
-                )
+                try:
+                    data = extract_json(response.text)
+                    items = data.get("items", [])
+                    quoted_total = parse_quoted_total(estimate)
 
-                st.markdown('<div class="section-kicker">Your explanation</div>', unsafe_allow_html=True)
-                st.subheader("AI-assisted estimate review")
+                    st.markdown(
+                        '<div class="result-banner">✓ Analysis complete. Review the decision dashboard before speaking with your service advisor.</div>',
+                        unsafe_allow_html=True,
+                    )
 
-                with st.container(border=True):
-                    st.markdown(response.text)
+                    st.markdown('<div class="section-kicker">Decision dashboard</div>', unsafe_allow_html=True)
+                    st.subheader("What your estimate is telling you")
 
-                st.write("")
-                st.markdown(
-                    """
-                    <div class="disclaimer">
-                        <strong>Important:</strong> This tool provides decision support only.
-                        It does not inspect your vehicle, make a mechanical diagnosis, or replace advice
-                        from a qualified automotive professional.
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
+                    evidence_needed = sum(
+                        1 for x in items
+                        if x.get("evidence_status") in ["Evidence missing", "Inspection/measurement required"]
+                    )
+                    optional_count = sum(
+                        1 for x in items
+                        if x.get("category") == "Optional/add-on treatment"
+                    )
+                    second_opinion_count = sum(
+                        1 for x in items
+                        if x.get("approval_readiness") == "Second opinion advisable"
+                    )
+
+                    m1, m2, m3, m4 = st.columns(4)
+                    with m1:
+                        st.metric("Quoted total", f"₹{quoted_total:,.0f}" if quoted_total else "Not available")
+                    with m2:
+                        st.metric("Line items", len(items))
+                    with m3:
+                        st.metric("Need more evidence", evidence_needed)
+                    with m4:
+                        st.metric("Possible add-ons", optional_count)
+
+                    if second_opinion_count:
+                        st.info(
+                            f"{second_opinion_count} item(s) may benefit from an independent second opinion before approval."
+                        )
+
+                    st.markdown("### Item-by-item decision view")
+
+                    for idx, item in enumerate(items, 1):
+                        title = f"{idx}. {item.get('item', 'Service item')}"
+                        price = item.get("quoted_price", "Not provided")
+                        if price and price != "Not provided":
+                            title += f" — {price}"
+
+                        with st.expander(title, expanded=(idx <= 2)):
+                            c1, c2, c3 = st.columns(3)
+                            with c1:
+                                st.markdown("**Category**")
+                                st.write(item.get("category", ""))
+                            with c2:
+                                st.markdown("**Evidence status**")
+                                st.write(item.get("evidence_status", ""))
+                            with c3:
+                                st.markdown("**Approval readiness**")
+                                st.write(item.get("approval_readiness", ""))
+
+                            st.markdown("**What it means**")
+                            st.write(item.get("plain_explanation", ""))
+
+                            st.markdown("**Why it may have been recommended**")
+                            st.write(item.get("why_recommended", ""))
+
+                            st.markdown("**Urgency**")
+                            st.write(item.get("urgency", ""))
+
+                            st.markdown("**If delayed**")
+                            st.write(item.get("delay_risk", ""))
+
+                            st.markdown("**Evidence to request**")
+                            st.write(item.get("evidence_to_request", ""))
+
+                            st.markdown("**Ask the service advisor**")
+                            st.info(item.get("question_to_ask", ""))
+
+                    st.markdown("### Before you approve")
+                    st.write(data.get("decision_summary", ""))
+
+                    questions = data.get("top_questions", [])
+                    if questions:
+                        st.markdown("#### Top questions to ask")
+                        for q in questions[:5]:
+                            st.markdown(f"- {q}")
+
+                    optional_items = data.get("possible_optional_addons", [])
+                    if optional_items:
+                        st.markdown("#### Items to clarify as possible add-ons")
+                        st.write(", ".join(optional_items))
+
+                    second_items = data.get("second_opinion_items", [])
+                    if second_items:
+                        st.markdown("#### Consider a second opinion for")
+                        st.write(", ".join(second_items))
+
+                    st.write("")
+                    st.markdown(
+                        """
+                        <div class="disclaimer">
+                            <strong>Important:</strong> This tool provides decision support only.
+                            The quoted-total calculation uses only prices present in the pasted estimate.
+                            It does not verify market prices, inspect the vehicle, diagnose faults, or replace
+                            advice from a qualified automotive professional.
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+
+                except Exception:
+                    st.warning("The AI returned an unexpected format. Showing the raw explanation instead.")
+                    with st.container(border=True):
+                        st.markdown(response.text)
+
             else:
                 st.error("The AI service is temporarily unavailable. Please try again.")
                 if last_error:
