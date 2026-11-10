@@ -5,34 +5,285 @@ st.set_page_config(
     page_title="Car Service Estimate Explainer",
     page_icon="🚗",
     layout="wide",
+    initial_sidebar_state="collapsed",
 )
 
-st.title("🚗 Car Service Estimate Explainer")
-st.caption("Clarity before approval")
+st.markdown(
+    """
+    <style>
+        .stApp {
+            background:
+                radial-gradient(circle at top left, rgba(219,234,254,0.85), transparent 34%),
+                radial-gradient(circle at top right, rgba(220,252,231,0.70), transparent 30%),
+                #f8fafc;
+        }
 
-st.info(
-    "This MVP helps car owners understand a service estimate before discussing it "
-    "with a service advisor. It does not replace professional mechanical diagnosis."
+        .block-container {
+            max-width: 1180px;
+            padding-top: 2.2rem;
+            padding-bottom: 4rem;
+        }
+
+        h1, h2, h3 {
+            letter-spacing: -0.025em;
+        }
+
+        .hero {
+            padding: 2.2rem 2.3rem;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.97), rgba(239,246,255,0.95));
+            border: 1px solid rgba(148,163,184,0.22);
+            box-shadow: 0 14px 40px rgba(15,23,42,0.07);
+            margin-bottom: 1.25rem;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: .38rem .72rem;
+            border-radius: 999px;
+            background: #e0f2fe;
+            color: #075985;
+            font-size: .78rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            margin-bottom: .8rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 4vw, 3.35rem);
+            line-height: 1.03;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .hero-copy {
+            max-width: 760px;
+            color: #475569;
+            font-size: 1.06rem;
+            line-height: 1.65;
+            margin-top: .85rem;
+            margin-bottom: 0;
+        }
+
+        .trust-row {
+            display: flex;
+            gap: .6rem;
+            flex-wrap: wrap;
+            margin-top: 1.1rem;
+        }
+
+        .trust-pill {
+            background: rgba(255,255,255,.9);
+            border: 1px solid #dbeafe;
+            color: #334155;
+            border-radius: 999px;
+            padding: .48rem .78rem;
+            font-size: .86rem;
+            font-weight: 600;
+        }
+
+        .section-kicker {
+            color: #2563eb;
+            font-weight: 700;
+            font-size: .78rem;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            margin-bottom: .25rem;
+        }
+
+        .step-card {
+            min-height: 132px;
+            background: rgba(255,255,255,.9);
+            border: 1px solid rgba(148,163,184,.18);
+            border-radius: 18px;
+            padding: 1.05rem 1.1rem;
+            box-shadow: 0 7px 24px rgba(15,23,42,.04);
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-weight: 800;
+            margin-bottom: .65rem;
+        }
+
+        .step-title {
+            color: #0f172a;
+            font-weight: 750;
+            margin-bottom: .2rem;
+        }
+
+        .step-copy {
+            color: #64748b;
+            font-size: .9rem;
+            line-height: 1.45;
+        }
+
+        .form-shell {
+            background: rgba(255,255,255,.96);
+            border: 1px solid rgba(148,163,184,.20);
+            border-radius: 22px;
+            padding: .35rem .25rem .2rem .25rem;
+            box-shadow: 0 12px 36px rgba(15,23,42,.055);
+        }
+
+        .result-banner {
+            background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+            border: 1px solid #bbf7d0;
+            border-radius: 18px;
+            padding: 1rem 1.15rem;
+            color: #166534;
+            margin-top: 1.1rem;
+            margin-bottom: 1rem;
+            font-weight: 650;
+        }
+
+        .disclaimer {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 16px;
+            padding: .9rem 1rem;
+            color: #9a3412;
+            font-size: .9rem;
+            line-height: 1.5;
+        }
+
+        div[data-testid="stTextInput"] input,
+        div[data-testid="stNumberInput"] input,
+        div[data-testid="stTextArea"] textarea {
+            border-radius: 12px !important;
+        }
+
+        div.stButton > button,
+        div[data-testid="stFormSubmitButton"] > button {
+            border-radius: 12px;
+            min-height: 3rem;
+            font-weight: 750;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 1.5rem 1.25rem;
+                border-radius: 18px;
+            }
+            .block-container {
+                padding-top: 1rem;
+            }
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
-with st.form("estimate_form"):
-    col1, col2 = st.columns(2)
+st.markdown(
+    """
+    <div class="hero">
+        <div class="eyebrow">AI-assisted service decision support</div>
+        <div class="hero-title">Car Service Estimate Explainer</div>
+        <p class="hero-copy">
+            Turn a confusing service estimate into plain-language explanations, evidence to request,
+            and practical questions to ask before you approve the work.
+        </p>
+        <div class="trust-row">
+            <span class="trust-pill">✓ No remote diagnosis</span>
+            <span class="trust-pill">✓ Evidence-first guidance</span>
+            <span class="trust-pill">✓ Clear questions for the advisor</span>
+            <span class="trust-pill">✓ Your input stays the source of truth</span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-    with col1:
-        brand = st.text_input("Car brand", placeholder="e.g. Tata")
-        model = st.text_input("Car model", placeholder="e.g. Harrier")
+st.markdown('<div class="section-kicker">How it works</div>', unsafe_allow_html=True)
+st.subheader("Clarity in three simple steps")
 
-    with col2:
-        year = st.number_input("Model year", min_value=1990, max_value=2030, value=2022)
-        mileage = st.number_input("Mileage (km)", min_value=0, step=1000)
-
-    estimate = st.text_area(
-        "Paste the service estimate / job-card items",
-        height=220,
-        placeholder="Example:\nBrake pads replacement - ₹6,500\nWheel alignment - ₹1,200",
+c1, c2, c3 = st.columns(3)
+with c1:
+    st.markdown(
+        """
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-title">Add vehicle context</div>
+            <div class="step-copy">Enter the basic vehicle details that help frame the estimate.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with c2:
+    st.markdown(
+        """
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-title">Paste the estimate</div>
+            <div class="step-copy">Copy the service-centre estimate or job-card items exactly as received.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with c3:
+    st.markdown(
+        """
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-title">Review before approval</div>
+            <div class="step-copy">Understand each item, what evidence to ask for, and what to clarify.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
-    submitted = st.form_submit_button("Explain My Estimate", type="primary")
+st.write("")
+st.markdown('<div class="section-kicker">Your estimate</div>', unsafe_allow_html=True)
+st.subheader("Tell us about the car and the recommended work")
+
+with st.container(border=True):
+    st.markdown("##### Vehicle details")
+    st.caption("Only basic context is needed for this MVP.")
+
+    with st.form("estimate_form"):
+        col1, col2 = st.columns(2)
+
+        with col1:
+            brand = st.text_input("Car brand", placeholder="e.g. Tata")
+            model = st.text_input("Car model", placeholder="e.g. Harrier")
+
+        with col2:
+            year = st.number_input("Model year", min_value=1990, max_value=2030, value=2022)
+            mileage = st.number_input("Mileage (km)", min_value=0, step=1000)
+
+        st.markdown("##### Service estimate / job card")
+        st.caption("Paste the line items exactly as shown on the estimate. Prices are optional.")
+
+        estimate = st.text_area(
+            "Estimate details",
+            height=240,
+            label_visibility="collapsed",
+            placeholder=(
+                "Example:\n"
+                "Engine oil replacement - ₹4,200\n"
+                "Front brake pad replacement - ₹7,500\n"
+                "Wheel alignment and balancing - ₹1,800"
+            ),
+        )
+
+        submitted = st.form_submit_button(
+            "✨ Explain My Estimate",
+            type="primary",
+            use_container_width=True,
+        )
+
+st.caption(
+    "Tip: better input gives better guidance. Include the exact line items and quoted prices where available."
+)
 
 if submitted:
     if not estimate.strip():
@@ -105,22 +356,51 @@ Strict guardrails:
                         last_error = exc
 
             if response and response.text:
-                st.success("Estimate explained successfully.")
-                st.subheader("AI-assisted estimate explanation")
-                st.markdown(response.text)
+                st.markdown(
+                    '<div class="result-banner">✓ Estimate explained successfully. Review the guidance below before speaking with your service advisor.</div>',
+                    unsafe_allow_html=True,
+                )
 
-                st.divider()
-                st.caption(
-                    "This output is for decision support only and does not replace inspection "
-                    "or advice from a qualified automotive professional."
+                st.markdown('<div class="section-kicker">Your explanation</div>', unsafe_allow_html=True)
+                st.subheader("AI-assisted estimate review")
+
+                with st.container(border=True):
+                    st.markdown(response.text)
+
+                st.write("")
+                st.markdown(
+                    """
+                    <div class="disclaimer">
+                        <strong>Important:</strong> This tool provides decision support only.
+                        It does not inspect your vehicle, make a mechanical diagnosis, or replace advice
+                        from a qualified automotive professional.
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
                 )
             else:
                 st.error("The AI service is temporarily unavailable. Please try again.")
                 if last_error:
-                    st.code(str(last_error))
+                    with st.expander("Technical details"):
+                        st.code(str(last_error))
 
         except KeyError:
             st.error("Gemini API key is not configured in Streamlit Secrets.")
         except Exception as exc:
             st.error("The AI service could not complete the analysis.")
-            st.code(str(exc))
+            with st.expander("Technical details"):
+                st.code(str(exc))
+
+st.write("")
+st.divider()
+
+f1, f2, f3 = st.columns(3)
+with f1:
+    st.markdown("**Built for car owners**")
+    st.caption("Designed for people who need clarity before approving service work.")
+with f2:
+    st.markdown("**Evidence over assumptions**")
+    st.caption("The tool encourages measurements, reports and inspection evidence.")
+with f3:
+    st.markdown("**Decision support, not diagnosis**")
+    st.caption("The final mechanical judgement remains with qualified professionals.")
