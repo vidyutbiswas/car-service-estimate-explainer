@@ -384,6 +384,99 @@ VEHICLE_CATALOG = {
 
 VEHICLE_TYPES = list(VEHICLE_CATALOG.keys())
 
+SYMPTOM_GROUPS = {
+    "Brakes & suspension": [
+        "Brake noise / squeal",
+        "Brake pedal feels soft / hard",
+        "Steering vibration",
+        "Vehicle pulls to one side",
+        "Suspension noise",
+        "Uneven tyre wear",
+    ],
+    "Electrical & AC": [
+        "TPMS warning / tyre-pressure alert",
+        "Headlight / tail-light issue",
+        "Fuse / electrical issue",
+        "Battery / slow-start issue",
+        "Dashboard warning light",
+        "AC cooling or airflow issue",
+    ],
+    "Body & exterior": [
+        "Denting / body damage",
+        "Paint damage / scratches",
+        "Loose body panel",
+        "Side mirror issue",
+        "Wiper / washer issue",
+    ],
+    "Engine & drivetrain": [
+        "Engine warning light",
+        "Unusual engine noise",
+        "Rough idle",
+        "Power loss / hesitation",
+        "Poor fuel economy",
+        "Oil / fluid leak",
+        "Cooling-system / overheating issue",
+        "Gearbox / transmission issue",
+        "Power-steering issue",
+        "Other / not sure",
+    ],
+}
+
+SERVICE_ITEMS_BY_SECTION = {
+    "Brakes & suspension": [
+        "Front brake pads",
+        "Rear brake pads / brake shoes",
+        "Brake discs / rotors",
+        "Brake fluid",
+        "Brake cleaning / inspection",
+        "Suspension inspection",
+        "Shock absorber / strut",
+        "Wheel alignment",
+        "Wheel balancing",
+        "Tyre rotation",
+    ],
+    "Electrical & AC": [
+        "Battery health check",
+        "Battery replacement",
+        "TPMS inspection",
+        "Headlight / tail-light repair",
+        "Fuse / wiring inspection",
+        "AC inspection",
+        "AC filter / cabin filter",
+        "AC gas / refrigerant service",
+        "Diagnostic scan",
+    ],
+    "Body & exterior": [
+        "Denting",
+        "Painting",
+        "Loose panel repair",
+        "Side mirror repair / replacement",
+        "Wiper blade replacement",
+        "Washer system repair",
+    ],
+    "Engine & drivetrain": [
+        "Engine oil replacement",
+        "Oil filter replacement",
+        "Air filter replacement",
+        "Fuel filter",
+        "Coolant / cooling-system service",
+        "Radiator inspection / repair",
+        "Engine noise diagnosis",
+        "Valve timing / timing-system inspection",
+        "Gearbox / transmission inspection",
+        "Power-steering inspection",
+        "Injector cleaning",
+        "Throttle-body cleaning",
+        "Engine flush treatment",
+    ],
+}
+
+ALL_SERVICE_ITEMS = [
+    item
+    for section_items in SERVICE_ITEMS_BY_SECTION.values()
+    for item in section_items
+]
+
 FUEL_TYPES = ["Petrol", "Diesel", "CNG", "Hybrid", "Electric", "Not sure"]
 
 SERVICE_CENTRE_TYPES = [
@@ -409,23 +502,6 @@ LAST_SERVICE_OPTIONS = [
     "Don't remember"
 ]
 
-SYMPTOM_OPTIONS = [
-    "No noticeable symptoms",
-    "Brake noise / squeal",
-    "Steering vibration",
-    "Vehicle pulls to one side",
-    "Engine warning light",
-    "Other dashboard warning light",
-    "Poor fuel economy",
-    "Rough idle",
-    "Slow engine start / weak battery",
-    "AC cooling or airflow issue",
-    "Suspension noise",
-    "Unusual engine noise",
-    "Power loss / hesitation",
-    "Fluid leak",
-    "Other / not sure"
-]
 
 st.markdown(
     """
@@ -536,6 +612,60 @@ with st.container(border=True):
         "Vehicle type filters the manufacturer list, and manufacturer filters the model list."
     )
 
+    st.markdown("##### How would you like to add the service estimate?")
+    input_mode = st.radio(
+        "Estimate input method",
+        ["Paste estimate / job card", "Build estimate manually", "Upload job card photo"],
+        horizontal=True,
+        label_visibility="collapsed",
+        key="estimate_input_mode",
+    )
+
+    manual_rows = []
+    uploaded_job_card = None
+
+    if input_mode == "Build estimate manually":
+        selected_services = st.multiselect(
+            "Select service items",
+            ALL_SERVICE_ITEMS,
+            default=[],
+            placeholder="Choose one or more service items",
+            help="Choose the items listed by the workshop, then add quoted cost and any details below.",
+        )
+
+        if selected_services:
+            default_rows = [
+                {"Service item": item, "Cost (₹)": None, "Details / workshop note": ""}
+                for item in selected_services
+            ]
+            manual_rows = st.data_editor(
+                default_rows,
+                use_container_width=True,
+                hide_index=True,
+                num_rows="fixed",
+                column_config={
+                    "Service item": st.column_config.TextColumn("Service item", disabled=True),
+                    "Cost (₹)": st.column_config.NumberColumn("Cost (₹)", min_value=0, step=100),
+                    "Details / workshop note": st.column_config.TextColumn(
+                        "Details / workshop note",
+                        max_chars=250,
+                    ),
+                },
+                key="manual_estimate_editor",
+            )
+        else:
+            st.info("Select at least one service item to build the estimate.")
+
+    elif input_mode == "Upload job card photo":
+        uploaded_job_card = st.file_uploader(
+            "Upload a clear photo of the service estimate / job card",
+            type=["jpg", "jpeg", "png"],
+            accept_multiple_files=False,
+            help="Use a clear, readable image. Avoid uploading registration number, VIN, phone number or other unnecessary personal information.",
+        )
+        if uploaded_job_card is not None:
+            st.image(uploaded_job_card, caption="Uploaded job card", width="stretch")
+
     with st.form("estimate_form"):
         st.markdown("##### Tester details")
         st.caption(
@@ -568,7 +698,7 @@ with st.container(border=True):
             fuel_type = st.selectbox("Fuel type", FUEL_TYPES, index=1)
         with r2c3:
             mileage = st.slider(
-                "Approx. mileage (km)",
+                "KMs driven (odometer reading)",
                 min_value=0,
                 max_value=300000,
                 value=40000,
@@ -596,29 +726,62 @@ with st.container(border=True):
                 index=1,
             )
 
-        symptoms_selected = st.multiselect(
-            "Current symptoms (select all that apply)",
-            SYMPTOM_OPTIONS,
-            default=["No noticeable symptoms"],
-            help="Choose the symptoms you currently notice. You can select more than one."
-        )
-        symptoms = ", ".join(symptoms_selected) if symptoms_selected else "None selected"
+        st.markdown("##### Current issues / symptoms")
+        st.caption("Select only what you have actually noticed. Leave all sections blank if there are no noticeable symptoms.")
 
-        st.markdown("##### Service estimate / job card")
-        st.caption("Paste the line items exactly as shown on the estimate. Prices are optional.")
+        symptoms_selected = []
+        symptom_cols = st.columns(2)
+        for idx, (section_name, section_options) in enumerate(SYMPTOM_GROUPS.items()):
+            with symptom_cols[idx % 2]:
+                selected = st.multiselect(
+                    section_name,
+                    section_options,
+                    default=[],
+                    key=f"symptoms_{section_name}",
+                    placeholder="None selected",
+                )
+                symptoms_selected.extend(selected)
 
-        estimate = st.text_area(
-            "Estimate details",
-            height=240,
-            max_chars=6000,
-            label_visibility="collapsed",
-            placeholder=(
-                "Example:\n"
-                "Engine oil replacement - ₹4,200\n"
-                "Front brake pad replacement - ₹7,500\n"
-                "Wheel alignment and balancing - ₹1,800"
-            ),
-        )
+        symptoms = ", ".join(symptoms_selected) if symptoms_selected else "No noticeable symptoms reported"
+
+        estimate = ""
+        if input_mode == "Paste estimate / job card":
+            st.markdown("##### Service estimate / job card")
+            st.caption("Paste the line items exactly as shown on the estimate. Prices are optional.")
+            estimate = st.text_area(
+                "Estimate details",
+                height=240,
+                max_chars=6000,
+                label_visibility="collapsed",
+                placeholder=(
+                    "Paste the workshop estimate here. Example:\n"
+                    "Engine oil replacement - ₹4,200\n"
+                    "Front brake pads - ₹7,500"
+                ),
+            )
+        elif input_mode == "Build estimate manually":
+            manual_lines = []
+            if manual_rows:
+                for row in manual_rows:
+                    item = str(row.get("Service item", "")).strip()
+                    cost = row.get("Cost (₹)")
+                    details = str(row.get("Details / workshop note", "") or "").strip()
+                    if item:
+                        line = item
+                        if cost is not None:
+                            try:
+                                line += f" - ₹{float(cost):,.0f}"
+                            except (TypeError, ValueError):
+                                pass
+                        if details:
+                            line += f" | {details}"
+                        manual_lines.append(line)
+            estimate = "\n".join(manual_lines)
+            st.caption("The selected items and costs above will be analysed when you submit.")
+        else:
+            if uploaded_job_card is not None:
+                estimate = f"Uploaded job card image: {uploaded_job_card.name}"
+            st.caption("The uploaded job-card photo will be read by the AI when you submit.")
 
         submitted = st.form_submit_button(
             "✨ Analyse My Estimate",
@@ -644,6 +807,21 @@ def parse_quoted_total(text):
             except ValueError:
                 pass
     return sum(amounts)
+
+
+def quoted_total_from_items(items):
+    total = 0.0
+    found = False
+    for item in items:
+        price = str(item.get("quoted_price", ""))
+        match = re.search(r"([0-9][0-9,]*(?:\\.\\d{1,2})?)", price)
+        if match:
+            try:
+                total += float(match.group(1).replace(",", ""))
+                found = True
+            except ValueError:
+                pass
+    return total if found else 0.0
 
 
 def extract_json(text):
@@ -679,8 +857,8 @@ def append_usage_row(row):
 
     # Preserve the existing sheet structure and append tester identity columns at V/W.
     worksheet.update(
-        range_name="V1:W1",
-        values=[["name", "email"]],
+        range_name="V1:X1",
+        values=[["name", "email", "estimate_input_mode"]],
         value_input_option="USER_ENTERED",
     )
     worksheet.append_row(row, value_input_option="USER_ENTERED")
@@ -775,8 +953,14 @@ if submitted:
         st.warning("Please confirm the consent checkbox before analysing the estimate.")
     elif not is_valid_vehicle_selection(vehicle_type, brand, selected_model):
         st.warning("The selected vehicle type, manufacturer and model combination is invalid. Please select the car again.")
-    elif not is_valid_estimate(estimate):
-        st.warning("Please enter a valid service estimate between 10 and 6,000 characters.")
+    elif input_mode == "Paste estimate / job card" and not is_valid_estimate(estimate):
+        st.warning("Please paste a valid service estimate between 10 and 6,000 characters.")
+    elif input_mode == "Build estimate manually" and not manual_rows:
+        st.warning("Please select at least one service item and add the estimate details.")
+    elif input_mode == "Upload job card photo" and uploaded_job_card is None:
+        st.warning("Please upload a JPG, JPEG or PNG job-card image.")
+    elif input_mode == "Upload job card photo" and uploaded_job_card.size > 8 * 1024 * 1024:
+        st.warning("Please upload an image smaller than 8 MB.")
     else:
         try:
             api_key = st.secrets["GEMINI_API_KEY"]
@@ -792,12 +976,14 @@ Vehicle context:
 - Brand: {brand}
 - Model: {model}
 - Model year: {year}
-- Mileage: approximately {mileage} km
+- KMs driven (odometer reading): approximately {mileage} km
 - Fuel type: {fuel_type}
 - Service centre type: {service_centre}
 - Warranty status: {warranty_status}
 - Last service: {last_service}
 - Current symptoms: {symptoms}
+
+Estimate input method: {input_mode}
 
 Service estimate / job-card text:
 {estimate}
@@ -827,7 +1013,7 @@ Return ONLY valid JSON with this exact structure:
 
 Strict rules:
 - Keep every estimate item in the same order as supplied.
-- Preserve the selected vehicle context, item names and quoted prices exactly. Treat mileage as approximate because the UI captures it in 1,000 km steps.
+- Preserve the selected vehicle context, item names and quoted prices exactly. Treat the odometer reading as approximate because the UI captures it in 1,000 km steps.
 - Do not invent manufacturer schedules, inspection results, measurements, symptoms, market prices, or service history.
 - Do not claim a quoted price is fair, expensive or cheap because you do not have verified live market pricing.
 - Do not diagnose the vehicle remotely.
@@ -847,9 +1033,22 @@ Strict rules:
             with st.spinner("Analysing your estimate and preparing a decision summary..."):
                 for model_name in models_to_try:
                     try:
+                        request_contents = prompt
+                        if input_mode == "Upload job card photo" and uploaded_job_card is not None:
+                            image_bytes = uploaded_job_card.getvalue()
+                            request_contents = [
+                                prompt
+                                + "\nRead the uploaded job-card image carefully. Extract only visible service items, quoted prices and workshop notes. "
+                                  "Do not invent unreadable text. If something cannot be read, mark it as unclear.",
+                                types.Part.from_bytes(
+                                    data=image_bytes,
+                                    mime_type=uploaded_job_card.type,
+                                ),
+                            ]
+
                         response = client.models.generate_content(
                             model=model_name,
-                            contents=prompt,
+                            contents=request_contents,
                             config=types.GenerateContentConfig(
                                 response_mime_type="application/json",
                                 temperature=0.2,
@@ -864,7 +1063,11 @@ Strict rules:
                 try:
                     data = extract_json(response.text)
                     items = data.get("items", [])
-                    quoted_total = parse_quoted_total(estimate)
+                    quoted_total = (
+                        quoted_total_from_items(items)
+                        if input_mode == "Upload job card photo"
+                        else parse_quoted_total(estimate)
+                    )
 
                     st.markdown(
                         '<div class="result-banner">✓ Analysis complete. Review the decision dashboard before speaking with your service advisor.</div>',
@@ -919,6 +1122,7 @@ Strict rules:
                         "",
                         user_name.strip(),
                         user_email.strip().lower(),
+                        input_mode,
                     ]
 
                     try:
