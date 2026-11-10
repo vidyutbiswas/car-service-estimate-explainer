@@ -576,36 +576,52 @@ with st.container(border=True):
         vehicle_type = st.selectbox(
             "Vehicle type",
             VEHICLE_TYPES,
-            index=0,
+            index=None,
+            placeholder="Select vehicle type",
             key="vehicle_type_selector",
         )
 
-    available_makes = list(VEHICLE_CATALOG[vehicle_type].keys())
+    available_makes = (
+        list(VEHICLE_CATALOG[vehicle_type].keys())
+        if vehicle_type in VEHICLE_CATALOG
+        else []
+    )
 
     with car_c2:
         brand = st.selectbox(
             "Car maker",
             available_makes,
-            index=0,
-            key=f"car_maker_selector_{vehicle_type}",
-            help="Only manufacturers with mapped models for the selected vehicle type are shown.",
+            index=None,
+            placeholder="Select manufacturer",
+            key=f"car_maker_selector_{vehicle_type or 'none'}",
+            disabled=not bool(vehicle_type),
+            help="Choose the vehicle type first. Only matching manufacturers will then be shown.",
         )
 
-    available_models = VEHICLE_CATALOG[vehicle_type][brand]
+    available_models = (
+        VEHICLE_CATALOG[vehicle_type][brand]
+        if vehicle_type in VEHICLE_CATALOG
+        and brand in VEHICLE_CATALOG[vehicle_type]
+        else []
+    )
 
     with car_c3:
         selected_model = st.selectbox(
             "Car model",
             available_models,
-            index=0,
-            key=f"car_model_selector_{vehicle_type}_{brand}",
-            help="Only models matching the selected vehicle type and manufacturer are shown.",
+            index=None,
+            placeholder="Select model",
+            key=f"car_model_selector_{vehicle_type or 'none'}_{brand or 'none'}",
+            disabled=not bool(brand),
+            help="Choose the manufacturer first. Only matching models will then be shown.",
         )
 
     model = (
         selected_model
         if brand == "Other / Not listed"
         else f"{brand} {selected_model}"
+        if brand and selected_model
+        else ""
     )
 
     st.caption(
@@ -684,7 +700,10 @@ with st.container(border=True):
         )
 
         st.markdown("##### Vehicle details")
-        st.caption(f"Selected vehicle: {vehicle_type} · {model}")
+        if vehicle_type and model:
+            st.caption(f"Selected vehicle: {vehicle_type} · {model}")
+        else:
+            st.caption("Complete the vehicle type, manufacturer and model selections above.")
 
         r2c1, r2c2, r2c3 = st.columns(3)
 
@@ -692,17 +711,24 @@ with st.container(border=True):
             year = st.selectbox(
                 "Model year",
                 list(range(2026, 1994, -1)),
-                index=4,
+                index=None,
+                placeholder="Select model year",
             )
         with r2c2:
-            fuel_type = st.selectbox("Fuel type", FUEL_TYPES, index=1)
+            fuel_type = st.selectbox(
+                "Fuel type",
+                FUEL_TYPES,
+                index=None,
+                placeholder="Select fuel type",
+            )
         with r2c3:
-            mileage = st.slider(
+            mileage = st.number_input(
                 "KMs driven (odometer reading)",
                 min_value=0,
                 max_value=300000,
-                value=40000,
+                value=None,
                 step=1000,
+                placeholder="e.g., 28,000",
             )
 
         r3c1, r3c2, r3c3 = st.columns(3)
@@ -711,19 +737,22 @@ with st.container(border=True):
             service_centre = st.selectbox(
                 "Service centre type",
                 SERVICE_CENTRE_TYPES,
-                index=0,
+                index=None,
+                placeholder="Select service centre type",
             )
         with r3c2:
             warranty_status = st.selectbox(
                 "Warranty status",
                 WARRANTY_OPTIONS,
-                index=3,
+                index=None,
+                placeholder="Select warranty status",
             )
         with r3c3:
             last_service = st.selectbox(
                 "Last service",
                 LAST_SERVICE_OPTIONS,
-                index=1,
+                index=None,
+                placeholder="Select when the car was last serviced",
             )
 
         st.markdown("##### Current issues / symptoms")
@@ -951,8 +980,26 @@ if submitted:
         st.warning("Please enter a valid email address, for example name@example.com.")
     elif not consent:
         st.warning("Please confirm the consent checkbox before analysing the estimate.")
+    elif not vehicle_type:
+        st.warning("Please select the vehicle type.")
+    elif not brand:
+        st.warning("Please select the car manufacturer.")
+    elif not selected_model:
+        st.warning("Please select the car model.")
     elif not is_valid_vehicle_selection(vehicle_type, brand, selected_model):
         st.warning("The selected vehicle type, manufacturer and model combination is invalid. Please select the car again.")
+    elif year is None:
+        st.warning("Please select the model year.")
+    elif fuel_type is None:
+        st.warning("Please select the fuel type.")
+    elif mileage is None:
+        st.warning("Please enter the approximate KMs driven.")
+    elif service_centre is None:
+        st.warning("Please select the service centre type.")
+    elif warranty_status is None:
+        st.warning("Please select the warranty status.")
+    elif last_service is None:
+        st.warning("Please select when the car was last serviced.")
     elif input_mode == "Enter service estimate" and not is_valid_estimate(estimate):
         st.warning("Please enter a valid service estimate between 10 and 6,000 characters.")
     elif input_mode == "Build estimate manually" and not manual_rows:
