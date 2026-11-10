@@ -577,6 +577,34 @@ def append_usage_row(row):
     worksheet.append_row(row, value_input_option="USER_ENTERED")
 
 
+def update_feedback_for_session(session_id, useful, decision_help, comment):
+    gsheets = st.secrets["connections"]["gsheets"]
+    credentials_info = dict(gsheets["credentials"])
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    credentials = Credentials.from_service_account_info(
+        credentials_info,
+        scopes=scopes,
+    )
+    client = gspread.authorize(credentials)
+    spreadsheet = client.open_by_url(gsheets["spreadsheet"])
+    worksheet_name = gsheets.get("worksheet", "Sheet1")
+    worksheet = spreadsheet.worksheet(worksheet_name)
+
+    session_cell = worksheet.find(str(session_id), in_column=2)
+    if not session_cell:
+        raise ValueError("Could not find the matching analysis session in the usage sheet.")
+
+    row_number = session_cell.row
+    worksheet.update(
+        range_name=f"S{row_number}:U{row_number}",
+        values=[[useful, decision_help, comment]],
+        value_input_option="USER_ENTERED",
+    )
+
+
 def decision_signal(item):
     readiness = item.get("approval_readiness", "")
     evidence = item.get("evidence_status", "")
@@ -744,6 +772,8 @@ Strict rules:
 
                     try:
                         append_usage_row(usage_row)
+                        st.session_state.feedback_available = True
+                        st.session_state.feedback_submitted = False
                     except Exception as log_exc:
                         st.warning(
                             "Analysis completed, but usage logging could not be saved. "
@@ -911,6 +941,57 @@ Strict rules:
             st.error("The AI service could not complete the analysis.")
             with st.expander("Technical details"):
                 st.code(str(exc))
+
+if st.session_state.get("feedback_available"):
+    st.write("")
+    st.markdown('<div class="section-kicker">Help us improve</div>', unsafe_allow_html=True)
+    st.subheader("How useful was this analysis?")
+
+    if st.session_state.get("feedback_submitted"):
+        st.success("Thanks — your feedback has been saved.")
+    else:
+        with st.container(border=True):
+            st.caption(
+                "Your feedback is linked only to this anonymous analysis session. "
+                "Please do not enter personal or vehicle-identifying information."
+            )
+
+            with st.form("feedback_form"):
+                feedback_useful = st.radio(
+                    "Was this analysis useful?",
+                    ["Yes", "Somewhat", "No"],
+                    horizontal=True,
+                )
+                feedback_decision_help = st.radio(
+                    "Did it help you decide what to ask or clarify before approving the service?",
+                    ["Yes", "Somewhat", "No"],
+                    horizontal=True,
+                )
+                feedback_comment = st.text_area(
+                    "Anything confusing or one improvement you would suggest? (optional)",
+                    max_chars=500,
+                    placeholder="Short feedback only — no name, phone, registration number or VIN.",
+                )
+                feedback_submit = st.form_submit_button(
+                    "Submit feedback",
+                    type="primary",
+                    use_container_width=True,
+                )
+
+            if feedback_submit:
+                try:
+                    update_feedback_for_session(
+                        st.session_state.session_id,
+                        feedback_useful,
+                        feedback_decision_help,
+                        feedback_comment.strip(),
+                    )
+                    st.session_state.feedback_submitted = True
+                    st.success("Thanks — your feedback has been saved.")
+                except Exception as feedback_exc:
+                    st.error("We could not save the feedback. Please try again.")
+                    with st.expander("Feedback logging details"):
+                        st.code(str(feedback_exc))
 
 st.write("")
 st.divider()
