@@ -2,6 +2,10 @@ import streamlit as st
 from google import genai
 import json
 import re
+import uuid
+from datetime import datetime, timezone
+import gspread
+from google.oauth2.service_account import Credentials
 
 st.set_page_config(
     page_title="Car Service Estimate Explainer",
@@ -555,6 +559,24 @@ def extract_json(text):
     return json.loads(cleaned)
 
 
+def append_usage_row(row):
+    gsheets = st.secrets["connections"]["gsheets"]
+    credentials_info = dict(gsheets["credentials"])
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    credentials = Credentials.from_service_account_info(
+        credentials_info,
+        scopes=scopes,
+    )
+    client = gspread.authorize(credentials)
+    spreadsheet = client.open_by_url(gsheets["spreadsheet"])
+    worksheet_name = gsheets.get("worksheet", "Sheet1")
+    worksheet = spreadsheet.worksheet(worksheet_name)
+    worksheet.append_row(row, value_input_option="USER_ENTERED")
+
+
 def decision_signal(item):
     readiness = item.get("approval_readiness", "")
     evidence = item.get("evidence_status", "")
@@ -692,6 +714,43 @@ Strict rules:
                     for x in items:
                         signal, _, _ = decision_signal(x)
                         signal_counts[signal] += 1
+
+                    if "session_id" not in st.session_state:
+                        st.session_state.session_id = str(uuid.uuid4())
+
+                    usage_row = [
+                        datetime.now(timezone.utc).isoformat(),
+                        st.session_state.session_id,
+                        vehicle_type,
+                        brand,
+                        model,
+                        year,
+                        fuel_type,
+                        mileage,
+                        service_centre,
+                        warranty_status,
+                        last_service,
+                        symptoms,
+                        quoted_total,
+                        len(items),
+                        signal_counts["red"],
+                        signal_counts["amber"],
+                        signal_counts["green"],
+                        optional_count,
+                        "",
+                        "",
+                        "",
+                    ]
+
+                    try:
+                        append_usage_row(usage_row)
+                    except Exception as log_exc:
+                        st.warning(
+                            "Analysis completed, but usage logging could not be saved. "
+                            "Please check the Google Sheets connection settings."
+                        )
+                        with st.expander("Logging details"):
+                            st.code(str(log_exc))
 
                     m1, m2, m3, m4 = st.columns(4)
                     with m1:
