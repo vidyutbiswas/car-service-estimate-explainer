@@ -75,21 +75,40 @@ Important guardrails:
 - Keep the response concise, practical, and decision-oriented.
 """
 
+            response = None
+            last_error = None
+            models_to_try = [
+                "gemini-3.8-flash",
+                "gemini-3.6-flash",
+                "gemini-3.5-flash-lite",
+            ]
+
             with st.spinner("Analysing your service estimate..."):
-                response = client.models.generate_content(
-                    model="gemini-3.8-flash",
-                    contents=prompt,
+                for model_name in models_to_try:
+                    try:
+                        response = client.models.generate_content(
+                            model=model_name,
+                            contents=prompt,
+                        )
+                        if response and response.text:
+                            break
+                    except Exception as exc:
+                        last_error = exc
+
+            if response and response.text:
+                st.success("Estimate explained successfully.")
+                st.subheader("AI-assisted estimate explanation")
+                st.markdown(response.text)
+
+                st.divider()
+                st.caption(
+                    "This output is for decision support only and does not replace inspection "
+                    "or advice from a qualified automotive professional."
                 )
-
-            st.success("Estimate explained successfully.")
-            st.subheader("AI-assisted estimate explanation")
-            st.markdown(response.text)
-
-            st.divider()
-            st.caption(
-                "This output is for decision support only and does not replace inspection "
-                "or advice from a qualified automotive professional."
-            )
+            else:
+                st.error("The AI service is temporarily unavailable. Please try again.")
+                if last_error:
+                    st.code(str(last_error))
 
         except KeyError:
             st.error("Gemini API key is not configured in Streamlit Secrets.")
