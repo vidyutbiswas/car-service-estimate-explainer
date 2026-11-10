@@ -1,4 +1,5 @@
 import streamlit as st
+from google import genai
 
 st.set_page_config(
     page_title="Car Service Estimate Explainer",
@@ -37,15 +38,61 @@ if submitted:
     if not estimate.strip():
         st.warning("Please paste at least one service estimate item.")
     else:
-        st.success("Input received. AI analysis will be connected in the next development step.")
-        st.subheader("Vehicle details")
-        st.write(
-            {
-                "brand": brand or "Not provided",
-                "model": model or "Not provided",
-                "year": year,
-                "mileage_km": mileage,
-            }
-        )
-        st.subheader("Estimate submitted")
-        st.code(estimate)
+        try:
+            api_key = st.secrets["GEMINI_API_KEY"]
+            client = genai.Client(api_key=api_key)
+
+            prompt = f"""
+You are an automotive service estimate explanation assistant for private car owners.
+
+Vehicle details:
+- Brand: {brand or "Not provided"}
+- Model: {model or "Not provided"}
+- Model year: {year}
+- Mileage: {mileage} km
+
+Service estimate / job-card text:
+{estimate}
+
+Explain the estimate in clear, non-technical language.
+
+For each service item, provide:
+1. What it means
+2. Why it may have been recommended
+3. Urgency: High / Medium / Low / Cannot determine from estimate alone
+4. What could happen if it is delayed
+5. Evidence the customer should ask the service centre to show
+6. One or two questions the customer should ask the service advisor
+
+Then provide a short section called "Before You Approve" summarizing the most important clarifications the customer should get.
+
+Important guardrails:
+- Do not diagnose the vehicle remotely.
+- Do not state that a repair is definitely necessary or unnecessary unless the estimate itself proves it.
+- Do not invent measurements, inspection findings, manufacturer requirements, prices, or service history.
+- Clearly say when the estimate alone is insufficient to judge necessity or urgency.
+- Encourage professional inspection where appropriate.
+- Keep the response concise, practical, and decision-oriented.
+"""
+
+            with st.spinner("Analysing your service estimate..."):
+                response = client.models.generate_content(
+                    model="gemini-3.8-flash",
+                    contents=prompt,
+                )
+
+            st.success("Estimate explained successfully.")
+            st.subheader("AI-assisted estimate explanation")
+            st.markdown(response.text)
+
+            st.divider()
+            st.caption(
+                "This output is for decision support only and does not replace inspection "
+                "or advice from a qualified automotive professional."
+            )
+
+        except KeyError:
+            st.error("Gemini API key is not configured in Streamlit Secrets.")
+        except Exception as exc:
+            st.error("The AI service could not complete the analysis.")
+            st.code(str(exc))
