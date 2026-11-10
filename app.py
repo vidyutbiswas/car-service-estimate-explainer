@@ -1,5 +1,6 @@
 import streamlit as st
 from google import genai
+from google.genai import types
 import json
 import re
 import uuid
@@ -570,10 +571,17 @@ def parse_quoted_total(text):
 
 def extract_json(text):
     cleaned = text.strip()
-    if cleaned.startswith("```"):
-        cleaned = re.sub(r"^\s*```(?:json)?\s*", "", cleaned, flags=re.I)
-        cleaned = re.sub(r"\s*```\s*$", "", cleaned)
-    return json.loads(cleaned)
+    cleaned = re.sub(r"^\s*```(?:json)?\s*", "", cleaned, flags=re.I)
+    cleaned = re.sub(r"\s*```\s*$", "", cleaned)
+
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        first = cleaned.find("{")
+        last = cleaned.rfind("}")
+        if first != -1 and last != -1 and last > first:
+            return json.loads(cleaned[first:last + 1])
+        raise
 
 
 def append_usage_row(row):
@@ -739,6 +747,10 @@ Strict rules:
                         response = client.models.generate_content(
                             model=model_name,
                             contents=prompt,
+                            config=types.GenerateContentConfig(
+                                response_mime_type="application/json",
+                                temperature=0.2,
+                            ),
                         )
                         if response and response.text:
                             break
@@ -960,10 +972,13 @@ Strict rules:
                         unsafe_allow_html=True,
                     )
 
-                except Exception:
-                    st.warning("The AI returned an unexpected format. Showing the raw explanation instead.")
-                    with st.container(border=True):
-                        st.markdown(response.text)
+                except Exception as parse_exc:
+                    st.error(
+                        "The analysis was generated, but the response could not be structured correctly. "
+                        "Please run the analysis again."
+                    )
+                    with st.expander("Technical details"):
+                        st.code(str(parse_exc))
 
             else:
                 st.error("The AI service is temporarily unavailable. Please try again.")
