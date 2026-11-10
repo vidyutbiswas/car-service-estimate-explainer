@@ -615,7 +615,7 @@ with st.container(border=True):
     st.markdown("##### How would you like to add the service estimate?")
     input_mode = st.radio(
         "Estimate input method",
-        ["Paste estimate / job card", "Build estimate manually", "Upload job card photo"],
+        ["Enter service estimate", "Build estimate manually", "Upload job card photo"],
         horizontal=True,
         label_visibility="collapsed",
         key="estimate_input_mode",
@@ -745,16 +745,16 @@ with st.container(border=True):
         symptoms = ", ".join(symptoms_selected) if symptoms_selected else "No noticeable symptoms reported"
 
         estimate = ""
-        if input_mode == "Paste estimate / job card":
+        if input_mode == "Enter service estimate":
             st.markdown("##### Service estimate / job card")
-            st.caption("Paste the line items exactly as shown on the estimate. Prices are optional.")
+            st.caption("Enter or copy the service items exactly as shown on the workshop estimate or job card. Prices are optional.")
             estimate = st.text_area(
                 "Estimate details",
                 height=240,
                 max_chars=6000,
                 label_visibility="collapsed",
                 placeholder=(
-                    "Paste the workshop estimate here. Example:\n"
+                    "Enter or copy the workshop estimate here. Example:\n"
                     "Engine oil replacement - ₹4,200\n"
                     "Front brake pads - ₹7,500"
                 ),
@@ -953,8 +953,8 @@ if submitted:
         st.warning("Please confirm the consent checkbox before analysing the estimate.")
     elif not is_valid_vehicle_selection(vehicle_type, brand, selected_model):
         st.warning("The selected vehicle type, manufacturer and model combination is invalid. Please select the car again.")
-    elif input_mode == "Paste estimate / job card" and not is_valid_estimate(estimate):
-        st.warning("Please paste a valid service estimate between 10 and 6,000 characters.")
+    elif input_mode == "Enter service estimate" and not is_valid_estimate(estimate):
+        st.warning("Please enter a valid service estimate between 10 and 6,000 characters.")
     elif input_mode == "Build estimate manually" and not manual_rows:
         st.warning("Please select at least one service item and add the estimate details.")
     elif input_mode == "Upload job card photo" and uploaded_job_card is None:
