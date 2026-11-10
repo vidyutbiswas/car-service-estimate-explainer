@@ -316,23 +316,27 @@ VEHICLE_MAKES = [
     "Other / Not listed"
 ]
 
-VEHICLE_MODELS = [
-    "Not specified",
-    "Tata Harrier", "Tata Safari", "Tata Nexon", "Tata Punch", "Tata Altroz", "Tata Tiago", "Tata Tigor",
-    "Maruti Suzuki Swift", "Maruti Suzuki Baleno", "Maruti Suzuki Dzire", "Maruti Suzuki Brezza",
-    "Maruti Suzuki Grand Vitara", "Maruti Suzuki Fronx", "Maruti Suzuki Ertiga", "Maruti Suzuki WagonR",
-    "Hyundai Creta", "Hyundai Venue", "Hyundai i20", "Hyundai Grand i10 Nios", "Hyundai Verna", "Hyundai Alcazar",
-    "Mahindra XUV700", "Mahindra Scorpio-N", "Mahindra Thar", "Mahindra XUV 3XO", "Mahindra Bolero",
-    "Toyota Innova Crysta", "Toyota Innova Hycross", "Toyota Fortuner", "Toyota Urban Cruiser Hyryder", "Toyota Glanza",
-    "Kia Seltos", "Kia Sonet", "Kia Carens",
-    "Honda City", "Honda Amaze", "Honda Elevate",
-    "Skoda Kushaq", "Skoda Slavia", "Volkswagen Taigun", "Volkswagen Virtus",
-    "MG Hector", "MG Astor", "MG ZS EV", "Renault Kiger", "Renault Triber", "Nissan Magnite",
-    "Jeep Compass", "Citroen C3", "Citroen C5 Aircross",
-    "BMW 3 Series", "BMW X1", "BMW X3", "Mercedes-Benz C-Class", "Mercedes-Benz GLA",
-    "Audi A4", "Audi Q3", "Volvo XC40",
-    "Other / Not listed"
-]
+MODELS_BY_MAKE = {
+    "Tata": ["Harrier", "Safari", "Nexon", "Punch", "Altroz", "Tiago", "Tigor", "Curvv"],
+    "Maruti Suzuki": ["Swift", "Baleno", "Dzire", "Brezza", "Grand Vitara", "Fronx", "Ertiga", "WagonR", "Celerio", "Alto K10"],
+    "Hyundai": ["Creta", "Venue", "i20", "Grand i10 Nios", "Verna", "Alcazar", "Exter", "Aura"],
+    "Mahindra": ["XUV700", "Scorpio-N", "Thar", "XUV 3XO", "Bolero", "Scorpio Classic"],
+    "Toyota": ["Innova Crysta", "Innova Hycross", "Fortuner", "Urban Cruiser Hyryder", "Glanza", "Rumion"],
+    "Kia": ["Seltos", "Sonet", "Carens", "Carnival"],
+    "Honda": ["City", "Amaze", "Elevate"],
+    "Skoda": ["Kushaq", "Slavia", "Kodiaq"],
+    "Volkswagen": ["Taigun", "Virtus", "Tiguan"],
+    "MG": ["Hector", "Astor", "ZS EV", "Comet EV", "Gloster"],
+    "Renault": ["Kiger", "Triber", "Kwid"],
+    "Nissan": ["Magnite", "X-Trail"],
+    "Jeep": ["Compass", "Meridian"],
+    "Citroen": ["C3", "C3 Aircross", "C5 Aircross"],
+    "BMW": ["3 Series", "5 Series", "X1", "X3", "X5"],
+    "Mercedes-Benz": ["C-Class", "E-Class", "GLA", "GLC", "GLE"],
+    "Audi": ["A4", "A6", "Q3", "Q5", "Q7"],
+    "Volvo": ["XC40", "XC60", "XC90"],
+    "Other / Not listed": ["Other / Not listed"],
+}
 
 VEHICLE_TYPES = [
     "SUV", "Compact SUV", "Hatchback", "Sedan", "MUV / MPV",
@@ -472,12 +476,20 @@ with st.container(border=True):
             vehicle_type = st.selectbox("Vehicle type", VEHICLE_TYPES, index=0)
         with r1c2:
             brand = st.selectbox("Car maker", VEHICLE_MAKES, index=0)
+
+        available_models = MODELS_BY_MAKE.get(brand, ["Other / Not listed"])
+
         with r1c3:
-            model = st.selectbox(
+            selected_model = st.selectbox(
                 "Car model",
-                VEHICLE_MODELS,
-                index=1,
-                help="The list is searchable — start typing the model name."
+                available_models,
+                index=0,
+                help="Only models from the selected manufacturer are shown."
+            )
+            model = (
+                selected_model
+                if brand == "Other / Not listed"
+                else f"{brand} {selected_model}"
             )
 
         r2c1, r2c2, r2c3 = st.columns(3)
