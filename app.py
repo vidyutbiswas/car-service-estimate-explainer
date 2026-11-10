@@ -543,8 +543,8 @@ with c2:
         """
         <div class="step-card">
             <div class="step-number">2</div>
-            <div class="step-title">Paste the estimate</div>
-            <div class="step-copy">Copy the service-centre estimate or job-card items exactly as received.</div>
+            <div class="step-title">Add your service estimate</div>
+            <div class="step-copy">Enter, build, or upload the workshop estimate or job card.</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -567,7 +567,7 @@ st.subheader("Tell us about the car and the recommended work")
 
 with st.container(border=True):
     st.markdown("##### Vehicle details")
-    st.caption("Most fields are quick selections. Only paste the service estimate at the end.")
+    st.caption("Most fields are quick selections. Add the service estimate using the option that suits you best.")
 
     st.markdown("##### Choose your car")
     car_c1, car_c2, car_c3 = st.columns(3)
@@ -1271,7 +1271,7 @@ Strict rules:
                         """
                         <div class="disclaimer">
                             <strong>Important:</strong> This tool provides decision support only.
-                            The quoted-total calculation uses only prices present in the pasted estimate.
+                            The quoted-total calculation uses only prices available in the submitted estimate or extracted job card.
                             It does not verify market prices, inspect the vehicle, diagnose faults, or replace
                             advice from a qualified automotive professional.
                         </div>
