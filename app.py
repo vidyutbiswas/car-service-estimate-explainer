@@ -787,6 +787,7 @@ with st.container(border=True):
         )
 
         manual_rows = []
+        manual_quoted_total = 0.0
         uploaded_job_card = None
         estimate = ""
 
@@ -853,7 +854,10 @@ with st.container(border=True):
                         line = item
                         if cost is not None:
                             try:
-                                line += f" - ₹{float(cost):,.0f}"
+                                numeric_cost = float(cost)
+                                if numeric_cost >= 0:
+                                    manual_quoted_total += numeric_cost
+                                    line += f" - ₹{numeric_cost:,.0f}"
                             except (TypeError, ValueError):
                                 pass
                         if details:
@@ -889,18 +893,44 @@ st.caption(
 )
 
 def parse_quoted_total(text):
+    """Sum prices explicitly entered in service-estimate text.
+
+    Prefer currency-marked values. If a line has no currency marker, accept a
+    trailing amount after a common price separator such as '-' or ':'.
+    """
     amounts = []
-    patterns = [
+
+    currency_patterns = [
         r"₹\s*([0-9][0-9,]*(?:\.\d{1,2})?)",
         r"(?i)rs\.?\s*([0-9][0-9,]*(?:\.\d{1,2})?)",
         r"(?i)inr\s*([0-9][0-9,]*(?:\.\d{1,2})?)",
     ]
-    for pattern in patterns:
-        for value in re.findall(pattern, text):
+
+    for line in text.splitlines():
+        line_amounts = []
+        for pattern in currency_patterns:
+            for value in re.findall(pattern, line):
+                try:
+                    line_amounts.append(float(value.replace(",", "")))
+                except ValueError:
+                    pass
+
+        if line_amounts:
+            amounts.extend(line_amounts)
+            continue
+
+        # Also support common manually typed formats such as
+        # "Brake pads - 7500" or "Oil filter: 850".
+        match = re.search(
+            r"(?:-|:|=)\s*([0-9][0-9,]*(?:\.\d{1,2})?)\s*$",
+            line.strip(),
+        )
+        if match:
             try:
-                amounts.append(float(value.replace(",", "")))
+                amounts.append(float(match.group(1).replace(",", "")))
             except ValueError:
                 pass
+
     return sum(amounts)
 
 
@@ -909,7 +939,7 @@ def quoted_total_from_items(items):
     found = False
     for item in items:
         price = str(item.get("quoted_price", ""))
-        match = re.search(r"([0-9][0-9,]*(?:\\.\\d{1,2})?)", price)
+        match = re.search(r"([0-9][0-9,]*(?:\.\d{1,2})?)", price)
         if match:
             try:
                 total += float(match.group(1).replace(",", ""))
@@ -1194,11 +1224,12 @@ Strict rules:
                 try:
                     data = extract_json(response.text)
                     items = data.get("items", [])
-                    quoted_total = (
-                        quoted_total_from_items(items)
-                        if input_mode == "Upload job card photo"
-                        else parse_quoted_total(estimate)
-                    )
+                    if input_mode == "Build job card manually":
+                        quoted_total = manual_quoted_total
+                    elif input_mode == "Upload job card photo":
+                        quoted_total = quoted_total_from_items(items)
+                    else:
+                        quoted_total = parse_quoted_total(estimate)
 
                     st.markdown(
                         '<div class="result-banner">✓ Analysis complete. Review the decision dashboard before speaking with your service advisor.</div>',
@@ -1324,7 +1355,7 @@ Strict rules:
 
                     m1, m2, m3, m4 = st.columns(4)
                     with m1:
-                        st.metric("Quoted total", f"₹{quoted_total:,.0f}" if quoted_total else "Not available")
+                        st.metric("Quoted total", f"₹{quoted_total:,.0f}" if quoted_total > 0 else "Not available")
                     with m2:
                         st.metric("Line items", len(items))
                     with m3:
