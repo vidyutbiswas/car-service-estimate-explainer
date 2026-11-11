@@ -1068,8 +1068,8 @@ if submitted:
         st.warning("Please select when the car was last serviced.")
     elif input_mode == "Enter service estimate" and not is_valid_estimate(estimate):
         st.warning("Please enter a valid service estimate between 10 and 6,000 characters.")
-    elif input_mode == "Build job card manually" and not manual_rows:
-        st.warning("Please select at least one service item and add the estimate details.")
+    elif input_mode == "Build job card manually" and not estimate.strip():
+        st.warning("Please add at least one workshop-recommended job or service item.")
     elif input_mode == "Upload job card photo" and uploaded_job_card is None:
         st.warning("Please upload a JPG, JPEG or PNG job-card image.")
     elif input_mode == "Upload job card photo" and uploaded_job_card.size > 8 * 1024 * 1024:
