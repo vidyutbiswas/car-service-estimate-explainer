@@ -295,6 +295,21 @@ div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:
 }
 .next-action strong{color:var(--text)}
 .next-action p{margin:.15rem 0 .65rem 0!important;line-height:1.5}
+
+.recommendation-box{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.1rem 1.15rem;margin:.8rem 0;box-shadow:var(--shadow)}
+.recommendation-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:var(--primary);margin-bottom:.45rem}
+.recommendation-headline{font-size:1.15rem;font-weight:800;line-height:1.4;color:var(--text)}
+.action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin:.85rem 0 1rem 0}
+.action-card{border:1px solid var(--border);border-radius:14px;padding:.9rem 1rem;background:var(--surface-soft)}
+.action-card h4{margin:0 0 .45rem 0!important;font-size:.94rem!important}
+.action-card ul{margin:.25rem 0 0 1rem;padding:0}
+.action-card li{margin:.25rem 0;line-height:1.45}
+.action-now{border-left:5px solid #dc2626}
+.action-proceed{border-left:5px solid #16a34a}
+.action-clarify{border-left:5px solid #d97706}
+.action-later{border-left:5px solid #64748b}
+.action-optional{border-left:5px solid #7c3aed}
+@media(max-width:768px){.action-grid{grid-template-columns:1fr}}
 @media(max-width:768px){
   .status-grid{grid-template-columns:1fr}
 }
@@ -1087,9 +1102,21 @@ Return ONLY valid JSON with this exact structure:
       "urgency": "High | Medium | Low | Cannot determine from estimate alone",
       "delay_risk": "possible consequence if delayed, without certainty",
       "evidence_to_request": "specific evidence/measurement/report to ask for",
-      "question_to_ask": "one concise question for the service advisor"
+      "question_to_ask": "one concise question for the service advisor",
+      "recommended_action": "Address now | Proceed after discussion | Clarify before approval | Can wait until next service | Optional / consider skipping | Second opinion before approval",
+      "action_reason": "short reason for the recommended action based only on supplied facts"
     }}
   ],
+  "customer_recommendation": {{
+    "headline": "one concise overall recommendation telling the customer what to do next",
+    "address_now": ["items that may need prompt attention because of safety, high urgency, warning signs or credible risk"],
+    "proceed_after_discussion": ["items that appear reasonable to proceed with after a normal discussion"],
+    "clarify_before_approval": ["items where evidence, measurement or explanation should be requested first"],
+    "can_wait_until_next_service": ["items that appear low urgency and may reasonably be deferred based on supplied information"],
+    "optional_or_consider_skipping": ["items that appear optional/add-on or not sufficiently justified"],
+    "second_opinion_before_approval": ["items where independent confirmation may materially help"],
+    "next_steps": ["maximum 5 concrete actions for the customer, ordered by priority"]
+  }},
   "top_questions": ["maximum 5 highest-priority questions"],
   "decision_summary": "2-4 sentence summary focused on what the customer should clarify before approval",
   "possible_optional_addons": ["item names that appear optional/add-on based only on supplied information"],
@@ -1105,6 +1132,12 @@ Strict rules:
 - If necessity depends on inspection evidence, use "Evidence required before approval" and "Cannot determine from estimate alone".
 - "Ready to discuss/approve" means the information appears sufficient for an informed discussion; it is NOT a mechanical approval or diagnosis.
 - Use "Second opinion advisable" sparingly, for high-cost/condition-based work or unclear add-ons where independent confirmation could materially help.
+- Make the recommendation action-oriented, not just explanatory.
+- Use "Address now" only when supplied symptoms, safety context, warning signs, or evidence support prompt attention.
+- "Address now" means seek prompt professional attention or clarification; it is not a remote diagnosis.
+- Use "Can wait until next service" only when the supplied information suggests low urgency and no safety concern. If uncertain, use "Clarify before approval".
+- Use "Optional / consider skipping" only for add-ons or treatments that are not clearly supported by supplied evidence. Never advise skipping a safety-critical item.
+- Every service item should appear in one practical recommendation bucket in customer_recommendation. Second-opinion items may additionally appear in second_opinion_before_approval.
 """
 
             response = None
@@ -1222,6 +1255,60 @@ Strict rules:
                         with st.expander("Logging details"):
                             st.code(str(log_exc))
 
+                    recommendation = data.get("customer_recommendation", {})
+                    if recommendation:
+                        st.markdown('<div class="section-kicker">Your decision</div>', unsafe_allow_html=True)
+                        st.subheader("Recommended next steps")
+
+                        headline = str(recommendation.get("headline", "")).strip()
+                        if headline:
+                            st.markdown(
+                                f"""
+                                <div class="recommendation-box">
+                                  <div class="recommendation-title">Overall recommendation</div>
+                                  <div class="recommendation-headline">{headline}</div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
+
+                        def render_action_list(title, values, css_class, icon):
+                            clean_values = [str(x).strip() for x in (values or []) if str(x).strip()]
+                            if not clean_values:
+                                return ""
+                            lis = "".join(f"<li>{x}</li>" for x in clean_values)
+                            return (
+                                f'<div class="action-card {css_class}">'
+                                f'<h4>{icon} {title}</h4><ul>{lis}</ul></div>'
+                            )
+
+                        action_cards = [
+                            render_action_list("Address now / highest priority", recommendation.get("address_now", []), "action-now", "🔴"),
+                            render_action_list("Proceed after discussion", recommendation.get("proceed_after_discussion", []), "action-proceed", "🟢"),
+                            render_action_list("Clarify before approval", recommendation.get("clarify_before_approval", []), "action-clarify", "🟠"),
+                            render_action_list("Can wait until next service", recommendation.get("can_wait_until_next_service", []), "action-later", "⏳"),
+                            render_action_list("Optional / consider skipping", recommendation.get("optional_or_consider_skipping", []), "action-optional", "🟣"),
+                            render_action_list("Consider a second opinion", recommendation.get("second_opinion_before_approval", []), "action-clarify", "🔎"),
+                        ]
+                        action_cards = [card for card in action_cards if card]
+                        if action_cards:
+                            st.markdown(
+                                '<div class="action-grid">' + "".join(action_cards) + "</div>",
+                                unsafe_allow_html=True,
+                            )
+
+                        next_steps = recommendation.get("next_steps", [])
+                        if next_steps:
+                            st.markdown("#### What to do next")
+                            for step_no, step in enumerate(next_steps[:5], 1):
+                                st.markdown(f"**{step_no}.** {step}")
+
+                        st.caption(
+                            "These recommendations are decision support based on the information supplied. "
+                            "They do not replace inspection or diagnosis by a qualified automotive professional."
+                        )
+                        st.divider()
+
                     m1, m2, m3, m4 = st.columns(4)
                     with m1:
                         st.metric("Quoted total", f"₹{quoted_total:,.0f}" if quoted_total else "Not available")
@@ -1326,6 +1413,10 @@ Strict rules:
                                   <p>{item.get("question_to_ask", "")}</p>
                                   <strong>Decision guidance:</strong>
                                   <p>{signal_icon} {signal_label}</p>
+                                  <strong>Recommended action:</strong>
+                                  <p>{item.get("recommended_action", signal_label)}</p>
+                                  <strong>Why:</strong>
+                                  <p>{item.get("action_reason", "")}</p>
                                 </div>
                                 """,
                                 unsafe_allow_html=True,
