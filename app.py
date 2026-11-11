@@ -682,9 +682,9 @@ with st.container(border=True):
     )
 
     with st.container(border=True):
-        st.markdown("##### Tester details")
+        st.markdown("##### Car owner details")
         st.caption(
-            "Used only to link this MVP test with the saved estimate and feedback. "
+            "Used to identify the car owner for this service-estimate review and optional feedback. "
             "Name and email are stored in the private research sheet and are not sent to the AI model."
         )
 
@@ -695,7 +695,7 @@ with st.container(border=True):
             user_email = st.text_input("Email *", placeholder="name@example.com", max_chars=254)
 
         consent = st.checkbox(
-            "I agree that my name, email, estimate details and feedback may be stored for this course MVP evaluation."
+            "I agree that my name, email, estimate details and optional feedback may be stored for this course MVP evaluation."
         )
 
         st.markdown("##### Vehicle details")
@@ -1499,7 +1499,7 @@ if st.session_state.get("feedback_available"):
     else:
         with st.container(border=True):
             st.caption(
-                "Your feedback is linked to the name and email entered for this MVP test. "
+                "Your feedback is linked to the car owner name and email entered above. "
                 "Please do not include registration numbers, VINs, phone numbers or other sensitive details in comments."
             )
 
