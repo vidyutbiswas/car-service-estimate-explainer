@@ -55,7 +55,7 @@ The product helps an individual car owner review a workshop service estimate or 
   - Engine & drivetrain
 - Three estimate-input methods:
   - Text entry
-  - Manual line-item builder with quoted cost/details
+  - Manual workshop job-card builder with recommended work, quoted cost and advisor notes
   - Job-card image upload
 - Structured AI output for each service item:
   - Plain-language explanation
@@ -245,7 +245,7 @@ Before a presentation/evaluation:
 - [ ] Browser opens the local Streamlit page
 - [ ] Vehicle dropdowns work correctly
 - [ ] Text estimate analysis works
-- [ ] Manual estimate builder works
+- [ ] Manual workshop job-card builder works without repeating the owner's symptom selection
 - [ ] Job-card image upload works
 - [ ] Decision / Recommended Next Steps section appears
 - [ ] Item-level analysis expands correctly
