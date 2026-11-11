@@ -681,61 +681,7 @@ with st.container(border=True):
         "Vehicle type filters the manufacturer list, and manufacturer filters the model list."
     )
 
-    st.markdown("##### How would you like to add the service estimate?")
-    input_mode = st.radio(
-        "Estimate input method",
-        ["Enter service estimate", "Build estimate manually", "Upload job card photo"],
-        horizontal=True,
-        label_visibility="collapsed",
-        key="estimate_input_mode",
-    )
-
-    manual_rows = []
-    uploaded_job_card = None
-
-    if input_mode == "Build estimate manually":
-        selected_services = st.multiselect(
-            "Select service items",
-            ALL_SERVICE_ITEMS,
-            default=[],
-            placeholder="Choose one or more service items",
-            help="Choose the items listed by the workshop, then add quoted cost and any details below.",
-        )
-
-        if selected_services:
-            default_rows = [
-                {"Service item": item, "Cost (₹)": None, "Details / workshop note": ""}
-                for item in selected_services
-            ]
-            manual_rows = st.data_editor(
-                default_rows,
-                use_container_width=True,
-                hide_index=True,
-                num_rows="fixed",
-                column_config={
-                    "Service item": st.column_config.TextColumn("Service item", disabled=True),
-                    "Cost (₹)": st.column_config.NumberColumn("Cost (₹)", min_value=0, step=100),
-                    "Details / workshop note": st.column_config.TextColumn(
-                        "Details / workshop note",
-                        max_chars=250,
-                    ),
-                },
-                key="manual_estimate_editor",
-            )
-        else:
-            st.info("Select at least one service item to build the estimate.")
-
-    elif input_mode == "Upload job card photo":
-        uploaded_job_card = st.file_uploader(
-            "Upload a clear photo of the service estimate / job card",
-            type=["jpg", "jpeg", "png"],
-            accept_multiple_files=False,
-            help="Use a clear, readable image. Avoid uploading registration number, VIN, phone number or other unnecessary personal information.",
-        )
-        if uploaded_job_card is not None:
-            st.image(uploaded_job_card, caption="Uploaded job card", width="stretch")
-
-    with st.form("estimate_form"):
+    with st.container(border=True):
         st.markdown("##### Tester details")
         st.caption(
             "Used only to link this MVP test with the saved estimate and feedback. "
@@ -826,7 +772,24 @@ with st.container(border=True):
 
         symptoms = ", ".join(symptoms_selected) if symptoms_selected else "No noticeable symptoms reported"
 
+        st.divider()
+        st.markdown("##### Workshop estimate / job card")
+        st.caption(
+            "Now add what the service advisor or workshop has recommended. "
+            "This is separate from the issues you noticed above."
+        )
+
+        input_mode = st.radio(
+            "How would you like to add the workshop estimate?",
+            ["Enter service estimate", "Build job card manually", "Upload job card photo"],
+            horizontal=True,
+            key="estimate_input_mode",
+        )
+
+        manual_rows = []
+        uploaded_job_card = None
         estimate = ""
+
         if input_mode == "Enter service estimate":
             st.markdown("##### Service estimate / job card")
             st.caption("Enter or copy the service items exactly as shown on the workshop estimate or job card. Prices are optional.")
@@ -841,13 +804,51 @@ with st.container(border=True):
                     "Front brake pads - ₹7,500"
                 ),
             )
-        elif input_mode == "Build estimate manually":
+        elif input_mode == "Build job card manually":
+            st.caption(
+                "Enter the workshop's recommended work and quoted price exactly as communicated. "
+                "Add or remove rows as needed — you do not need to select the owner's issues again."
+            )
+            manual_rows = st.data_editor(
+                [
+                    {"Recommended work / service item": "", "Quoted cost (₹)": None, "Workshop note / reason": ""},
+                    {"Recommended work / service item": "", "Quoted cost (₹)": None, "Workshop note / reason": ""},
+                    {"Recommended work / service item": "", "Quoted cost (₹)": None, "Workshop note / reason": ""},
+                ],
+                use_container_width=True,
+                hide_index=True,
+                num_rows="dynamic",
+                column_config={
+                    "Recommended work / service item": st.column_config.TextColumn(
+                        "Recommended work / service item",
+                        help="Enter the job or part recommended by the workshop.",
+                        max_chars=120,
+                    ),
+                    "Quoted cost (₹)": st.column_config.NumberColumn(
+                        "Quoted cost (₹)",
+                        min_value=0,
+                        step=100,
+                    ),
+                    "Workshop note / reason": st.column_config.TextColumn(
+                        "Workshop note / reason",
+                        help="Optional: copy the advisor's reason or note.",
+                        max_chars=250,
+                    ),
+                },
+                key="manual_job_card_editor",
+            )
+
             manual_lines = []
-            if manual_rows:
-                for row in manual_rows:
-                    item = str(row.get("Service item", "")).strip()
-                    cost = row.get("Cost (₹)")
-                    details = str(row.get("Details / workshop note", "") or "").strip()
+            if manual_rows is not None:
+                rows_iter = (
+                    manual_rows.to_dict("records")
+                    if hasattr(manual_rows, "to_dict")
+                    else manual_rows
+                )
+                for row in rows_iter:
+                    item = str(row.get("Recommended work / service item", "") or "").strip()
+                    cost = row.get("Quoted cost (₹)")
+                    details = str(row.get("Workshop note / reason", "") or "").strip()
                     if item:
                         line = item
                         if cost is not None:
@@ -859,13 +860,25 @@ with st.container(border=True):
                             line += f" | {details}"
                         manual_lines.append(line)
             estimate = "\n".join(manual_lines)
-            st.caption("The selected items and costs above will be analysed when you submit.")
-        else:
-            if uploaded_job_card is not None:
-                estimate = f"Uploaded job card image: {uploaded_job_card.name}"
-            st.caption("The uploaded job-card photo will be read by the AI when you submit.")
+            if manual_lines:
+                st.caption("These workshop recommendations and quoted costs will be analysed against the vehicle context and owner-reported issues.")
+            else:
+                st.info("Add at least one workshop-recommended job or service item.")
 
-        submitted = st.form_submit_button(
+        else:
+            uploaded_job_card = st.file_uploader(
+                "Upload the workshop estimate / job card",
+                type=["jpg", "jpeg", "png"],
+                accept_multiple_files=False,
+                help="Use a clear, readable image. Avoid uploading registration number, VIN, phone number or other unnecessary personal information.",
+                key="job_card_uploader",
+            )
+            if uploaded_job_card is not None:
+                st.image(uploaded_job_card, caption="Uploaded workshop job card", width="stretch")
+                estimate = f"Uploaded job card image: {uploaded_job_card.name}"
+            st.caption("The uploaded workshop job-card photo will be read by the AI when you analyse it.")
+
+        submitted = st.button(
             "✨ Analyse My Estimate",
             type="primary",
             use_container_width=True,
@@ -1055,7 +1068,7 @@ if submitted:
         st.warning("Please select when the car was last serviced.")
     elif input_mode == "Enter service estimate" and not is_valid_estimate(estimate):
         st.warning("Please enter a valid service estimate between 10 and 6,000 characters.")
-    elif input_mode == "Build estimate manually" and not manual_rows:
+    elif input_mode == "Build job card manually" and not manual_rows:
         st.warning("Please select at least one service item and add the estimate details.")
     elif input_mode == "Upload job card photo" and uploaded_job_card is None:
         st.warning("Please upload a JPG, JPEG or PNG job-card image.")
