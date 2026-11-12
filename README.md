@@ -4,6 +4,10 @@
 
 A Streamlit + GenAI MVP built for the IIM Visakhapatnam Executive MBA **Digital Product Management** course project.
 
+## Live MVP
+
+**Streamlit:** https://car-service-estimate-explainer-utetxmgs4qmkr893pkptuu.streamlit.app/
+
 The product helps an individual car owner review a workshop service estimate or job card and decide:
 
 - what may need prompt attention;
