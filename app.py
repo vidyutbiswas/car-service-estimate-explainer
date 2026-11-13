@@ -40,18 +40,18 @@ st.markdown(
   --lavender-text:color-mix(in srgb,var(--text-color) 42%,var(--lavender-base) 58%);
   --sand-text:color-mix(in srgb,var(--text-color) 44%,var(--sand-base) 56%);
 
-  --blue-panel:color-mix(in srgb,var(--blue-base) 11%,var(--surface));
-  --teal-panel:color-mix(in srgb,var(--teal-base) 10%,var(--surface));
-  --lavender-panel:color-mix(in srgb,var(--lavender-base) 10%,var(--surface));
-  --sand-panel:color-mix(in srgb,var(--sand-base) 9%,var(--surface));
+  --blue-panel:color-mix(in srgb,var(--blue-base) 18%,var(--surface));
+  --teal-panel:color-mix(in srgb,var(--teal-base) 17%,var(--surface));
+  --lavender-panel:color-mix(in srgb,var(--lavender-base) 17%,var(--surface));
+  --sand-panel:color-mix(in srgb,var(--sand-base) 15%,var(--surface));
 
   --blue-border:color-mix(in srgb,var(--blue-base) 30%,var(--border));
   --teal-border:color-mix(in srgb,var(--teal-base) 28%,var(--border));
   --lavender-border:color-mix(in srgb,var(--lavender-base) 28%,var(--border));
   --sand-border:color-mix(in srgb,var(--sand-base) 27%,var(--border));
 
-  --input-bg:color-mix(in srgb,var(--blue-base) 5%,var(--surface));
-  --input-bg-hover:color-mix(in srgb,var(--blue-base) 8%,var(--surface));
+  --input-bg:color-mix(in srgb,var(--blue-base) 10%,var(--surface));
+  --input-bg-hover:color-mix(in srgb,var(--blue-base) 14%,var(--surface));
   --input-text:var(--text);
 
   --success-base:#4e8a68;
@@ -290,6 +290,34 @@ div[data-baseweb="select"] input{
   -webkit-text-fill-color:var(--input-text)!important
 }
 
+/* Extra widget shells for current Streamlit DOM */
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+div[data-testid="stMultiSelect"] div[data-baseweb="select"] > div{
+  min-height:2.65rem!important;
+}
+div[data-testid="stSelectbox"]{
+  border-radius:14px;
+}
+div[data-testid="stFileUploader"] section{
+  background:var(--sand-panel)!important;
+  border:1px dashed var(--sand-border)!important;
+  border-radius:14px!important;
+}
+div[data-testid="stFileUploader"] button{
+  background:var(--surface)!important;
+  border:1px solid var(--sand-border)!important;
+  color:var(--sand-text)!important;
+}
+div[data-testid="stDataFrame"]{
+  background:var(--teal-panel)!important;
+  border:1px solid var(--teal-border)!important;
+  border-radius:14px!important;
+  padding:.25rem!important;
+}
+div[data-testid="stAlert"]{
+  border-radius:14px!important;
+}
+
 /* Dropdown popovers */
 div[data-baseweb="popover"] > div,
 ul[role="listbox"]{
@@ -328,20 +356,26 @@ div[data-testid="stCheckbox"]{
 }
 
 /* Buttons */
-div[data-testid="stFormSubmitButton"]>button{
+div[data-testid="stButton"] > button[kind="primary"],
+div[data-testid="stButton"] > button,
+div[data-testid="stFormSubmitButton"] > button,
+button[kind="primary"]{
   border-radius:12px!important;
   min-height:3rem!important;
   font-weight:750!important;
-  background:linear-gradient(135deg,
-    color-mix(in srgb,var(--blue-base) 76%,var(--text) 24%),
-    color-mix(in srgb,var(--teal-base) 74%,var(--text) 26%))!important;
-  color:#fff!important;
-  border:1px solid color-mix(in srgb,var(--blue-base) 55%,var(--border))!important;
-  box-shadow:0 8px 20px color-mix(in srgb,var(--blue-base) 16%,transparent)
+  background:linear-gradient(135deg,#627f98,#638b82)!important;
+  color:#ffffff!important;
+  -webkit-text-fill-color:#ffffff!important;
+  border:1px solid #7894aa!important;
+  box-shadow:0 8px 20px rgba(70,101,125,.18)!important
 }
-div[data-testid="stFormSubmitButton"]>button:hover{
-  filter:brightness(1.05);
-  color:#fff!important
+div[data-testid="stButton"] > button:hover,
+div[data-testid="stFormSubmitButton"] > button:hover,
+button[kind="primary"]:hover{
+  background:linear-gradient(135deg,#6e8ca4,#6f978e)!important;
+  color:#ffffff!important;
+  -webkit-text-fill-color:#ffffff!important;
+  border-color:#8ca4b5!important;
 }
 
 /* Result and guidance panels */
