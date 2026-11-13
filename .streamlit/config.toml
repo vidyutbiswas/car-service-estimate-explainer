@@ -1,0 +1,21 @@
+[theme]
+font = "sans-serif"
+baseRadius = "medium"
+buttonRadius = "medium"
+showWidgetBorder = true
+
+[theme.light]
+primaryColor = "#2563EB"
+backgroundColor = "#F7F9FC"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#0F172A"
+borderColor = "#D7DEE8"
+linkColor = "#2563EB"
+
+[theme.dark]
+primaryColor = "#60A5FA"
+backgroundColor = "#0B1120"
+secondaryBackgroundColor = "#111827"
+textColor = "#F8FAFC"
+borderColor = "#334155"
+linkColor = "#93C5FD"
