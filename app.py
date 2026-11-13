@@ -1005,7 +1005,7 @@ with st.container(border=True):
             st.image(uploaded_job_card, caption="Uploaded job card", width="stretch")
 
     with st.form("estimate_form"):
-        st.markdown("##### Tester details")
+        st.markdown("##### Car owner details")
         st.caption(
             "Used only to link this MVP test with the saved estimate and feedback. "
             "Name and email are stored in the private research sheet and are not sent to the AI model."
