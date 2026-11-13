@@ -212,19 +212,6 @@ div[data-testid="stHorizontalBlock"]:has(.step-card){
   align-items:stretch;
   margin-bottom:1.45rem;
 }
-div[data-testid="stHorizontalBlock"]:has(.step-card)::before{
-  content:"";
-  position:absolute;
-  left:15%;
-  right:15%;
-  top:42px;
-  height:1px;
-  background:linear-gradient(90deg,
-    rgba(92,126,156,.34),
-    rgba(88,139,126,.34),
-    rgba(130,116,157,.34));
-  z-index:0;
-}
 .step-card{
   position:relative;
   z-index:1;
