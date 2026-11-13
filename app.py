@@ -18,319 +18,303 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-/* 
-   Theme strategy:
-   - Streamlit config.toml owns Light/Dark widget colors.
-   - Custom CSS only adds translucent color layers and layout polish.
-   - No dependency on undocumented Streamlit CSS variables.
-*/
+:root{
+  --page-bg:#f7f9fc;
+  --accent1:rgba(219,234,254,.82);
+  --accent2:rgba(220,252,231,.62);
+  --surface:#ffffff;
+  --surface-soft:#f8fafc;
+  --text:#0f172a;
+  --muted:#475569;
+  --soft:#64748b;
+  --border:#d7dee8;
+  --input-bg:#ffffff;
+  --input-text:#0f172a;
+  --placeholder:#94a3b8;
+  --primary:#2563eb;
+  --primary2:#3b82f6;
+  --primary-soft:#eff6ff;
+  --success-bg:#ecfdf5;
+  --success-border:#bbf7d0;
+  --success-text:#166534;
+  --warning-bg:#fff7ed;
+  --warning-border:#fed7aa;
+  --warning-text:#9a3412;
+  --shadow:0 12px 36px rgba(15,23,42,.07);
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --page-bg:#0b1120;
+    --accent1:rgba(30,64,175,.22);
+    --accent2:rgba(5,150,105,.15);
+    --surface:#111827;
+    --surface-soft:#172033;
+    --text:#f8fafc;
+    --muted:#cbd5e1;
+    --soft:#94a3b8;
+    --border:#334155;
+    --input-bg:#0f172a;
+    --input-text:#f8fafc;
+    --placeholder:#94a3b8;
+    --primary:#60a5fa;
+    --primary2:#3b82f6;
+    --primary-soft:rgba(37,99,235,.18);
+    --success-bg:rgba(6,78,59,.38);
+    --success-border:rgba(52,211,153,.30);
+    --success-text:#a7f3d0;
+    --warning-bg:rgba(124,45,18,.34);
+    --warning-border:rgba(251,146,60,.30);
+    --warning-text:#fed7aa;
+    --shadow:0 14px 40px rgba(0,0,0,.24);
+  }
+}
+
+html[data-theme="dark"]{
+  --page-bg:#0b1120;
+  --accent1:rgba(30,64,175,.22);
+  --accent2:rgba(5,150,105,.15);
+  --surface:#111827;
+  --surface-soft:#172033;
+  --text:#f8fafc;
+  --muted:#cbd5e1;
+  --soft:#94a3b8;
+  --border:#334155;
+  --input-bg:#0f172a;
+  --input-text:#f8fafc;
+  --placeholder:#94a3b8;
+  --primary:#60a5fa;
+  --primary2:#3b82f6;
+  --primary-soft:rgba(37,99,235,.18);
+  --success-bg:rgba(6,78,59,.38);
+  --success-border:rgba(52,211,153,.30);
+  --success-text:#a7f3d0;
+  --warning-bg:rgba(124,45,18,.34);
+  --warning-border:rgba(251,146,60,.30);
+  --warning-text:#fed7aa;
+  --shadow:0 14px 40px rgba(0,0,0,.24);
+}
+
+html[data-theme="light"]{
+  --page-bg:#f7f9fc;
+  --accent1:rgba(219,234,254,.82);
+  --accent2:rgba(220,252,231,.62);
+  --surface:#ffffff;
+  --surface-soft:#f8fafc;
+  --text:#0f172a;
+  --muted:#475569;
+  --soft:#64748b;
+  --border:#d7dee8;
+  --input-bg:#ffffff;
+  --input-text:#0f172a;
+  --placeholder:#94a3b8;
+  --primary:#2563eb;
+  --primary2:#3b82f6;
+  --primary-soft:#eff6ff;
+  --success-bg:#ecfdf5;
+  --success-border:#bbf7d0;
+  --success-text:#166534;
+  --warning-bg:#fff7ed;
+  --warning-border:#fed7aa;
+  --warning-text:#9a3412;
+  --shadow:0 12px 36px rgba(15,23,42,.07);
+}
+
 .stApp{
-  background-image:
-    radial-gradient(circle at 4% 0%, rgba(111,143,168,.10), transparent 27%),
-    radial-gradient(circle at 97% 2%, rgba(102,143,134,.08), transparent 23%);
+  background:
+    radial-gradient(circle at top left,var(--accent1),transparent 34%),
+    radial-gradient(circle at top right,var(--accent2),transparent 30%),
+    var(--page-bg);
+  color:var(--text);
 }
 .block-container{max-width:1180px;padding-top:2.2rem;padding-bottom:4rem}
+.stApp h1,.stApp h2,.stApp h3,.stApp h4,.stApp h5,.stApp h6,
+.stApp p,.stApp label,[data-testid="stMarkdownContainer"]{color:var(--text)!important}
+[data-testid="stCaptionContainer"] p{color:var(--soft)!important}
 h1,h2,h3{letter-spacing:-.025em}
 
-/* Hero */
 .hero{
-  padding:2.2rem 2.3rem;
-  border-radius:24px;
-  background:linear-gradient(135deg,rgba(111,143,168,.13),rgba(102,143,134,.08));
-  border:1px solid rgba(111,143,168,.28);
-  box-shadow:0 10px 28px rgba(15,23,42,.07);
-  margin-bottom:1.35rem
+  padding:2.2rem 2.3rem;border-radius:24px;
+  background:linear-gradient(135deg,var(--surface),var(--surface-soft));
+  border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:1.25rem
 }
-.eyebrow{
-  display:inline-flex;align-items:center;gap:.4rem;
-  padding:.38rem .72rem;
-  border-radius:999px;
-  background:rgba(111,143,168,.16);
-  border:1px solid rgba(111,143,168,.32);
-  color:inherit!important;
-  font-size:.76rem;font-weight:750;letter-spacing:.06em;
-  text-transform:uppercase;margin-bottom:.8rem
-}
-.eyebrow::before{
-  content:"";
-  width:7px;height:7px;border-radius:50%;
-  background:#6f8fa8;display:inline-block
-}
-.hero-title{font-size:clamp(2rem,4vw,3.35rem);line-height:1.03;font-weight:800;color:inherit;margin:0}
-.hero-copy{max-width:760px;font-size:1.06rem;line-height:1.65;margin-top:.85rem;margin-bottom:0;opacity:.78}
+.eyebrow{display:inline-block;padding:.38rem .72rem;border-radius:999px;background:var(--primary-soft);color:var(--primary);font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:.8rem}
+.hero-title{font-size:clamp(2rem,4vw,3.35rem);line-height:1.03;font-weight:800;color:var(--text);margin:0}
+.hero-copy{max-width:760px;color:var(--muted);font-size:1.06rem;line-height:1.65;margin-top:.85rem;margin-bottom:0}
 .trust-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.1rem}
-.trust-pill{
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(111,143,168,.22);
-  border-radius:999px;padding:.46rem .76rem;
-  font-size:.85rem;font-weight:600
-}
+.trust-pill{background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:.48rem .78rem;font-size:.86rem;font-weight:600}
+.section-kicker{color:var(--primary);font-weight:700;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.25rem}
+.step-card{min-height:132px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.05rem 1.1rem;box-shadow:var(--shadow)}
+.step-number{width:32px;height:32px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:var(--primary-soft);color:var(--primary);font-weight:800;margin-bottom:.65rem}
+.step-title{color:var(--text);font-weight:750;margin-bottom:.2rem}
+.step-copy{color:var(--soft);font-size:.9rem;line-height:1.45}
 
-/* Major section badges */
-.section-kicker{
-  display:inline-flex;align-items:center;gap:.42rem;
-  padding:.34rem .62rem;border-radius:9px;
-  border:1px solid transparent;
-  color:inherit!important;
-  font-weight:800;font-size:.74rem;letter-spacing:.075em;
-  text-transform:uppercase;margin-bottom:.42rem
-}
-.section-kicker::before{
-  content:"";width:7px;height:7px;border-radius:50%;display:inline-block
-}
-.kicker-blue{background:rgba(111,143,168,.17);border-color:rgba(111,143,168,.33)}
-.kicker-blue::before{background:#6f8fa8}
-.kicker-teal{background:rgba(102,143,134,.17);border-color:rgba(102,143,134,.33)}
-.kicker-teal::before{background:#668f86}
-.kicker-lavender{background:rgba(139,130,166,.17);border-color:rgba(139,130,166,.34)}
-.kicker-lavender::before{background:#8b82a6}
-.kicker-sand{background:rgba(165,140,102,.16);border-color:rgba(165,140,102,.32)}
-.kicker-sand::before{background:#a58c66}
-
-/* Three-step panel */
-.step-card{
-  min-height:138px;border-radius:18px;
-  padding:1.05rem 1.1rem;
-  box-shadow:0 4px 14px rgba(15,23,42,.05);
-  border:1px solid rgba(125,135,145,.22)
-}
-[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(1) .step-card{
-  background:rgba(111,143,168,.14);border-color:rgba(111,143,168,.30)
-}
-[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2) .step-card{
-  background:rgba(102,143,134,.14);border-color:rgba(102,143,134,.30)
-}
-[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(3) .step-card{
-  background:rgba(139,130,166,.14);border-color:rgba(139,130,166,.30)
-}
-.step-number{
-  width:32px;height:32px;border-radius:9px;
-  display:inline-flex;align-items:center;justify-content:center;
-  background:rgba(255,255,255,.10);
-  border:1px solid rgba(125,135,145,.28);
-  color:inherit!important;font-weight:800;margin-bottom:.65rem
-}
-.step-title{color:inherit!important;font-weight:760;margin-bottom:.2rem}
-.step-copy{font-size:.9rem;line-height:1.45;opacity:.72}
-
-/* Main / nested panels */
 div[data-testid="stVerticalBlockBorderWrapper"]>div{
-  background:rgba(111,143,168,.055)!important;
-  border:1px solid rgba(111,143,168,.26)!important;
-  border-radius:18px!important;
-  box-shadow:0 4px 16px rgba(15,23,42,.045)
+  background:var(--surface)!important;border-color:var(--border)!important;box-shadow:var(--shadow)
 }
-div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlockBorderWrapper"]>div{
-  background:rgba(102,143,134,.06)!important;
-  border-color:rgba(102,143,134,.27)!important
-}
-div[data-testid="stForm"]{background:transparent!important}
+div[data-testid="stForm"]{background:transparent!important;border-color:var(--border)!important}
 
-/* Section headings inside forms */
-.stApp h5{
-  display:inline-block;
-  padding:.18rem .1rem .18rem .58rem;
-  border-left:3px solid rgba(111,143,168,.62);
-  margin-top:.2rem!important
-}
-
-/* Widget labels */
-div[data-testid="stWidgetLabel"],
 div[data-testid="stTextInput"] label,
 div[data-testid="stNumberInput"] label,
-div[data-testid="stTextArea"] label{
-  font-weight:650!important;
-  opacity:.84
+div[data-testid="stTextArea"] label,
+div[data-testid="stWidgetLabel"]{
+  color:var(--text)!important;font-weight:650!important
 }
 
-/* Inputs */
 div[data-testid="stTextInput"] input,
 div[data-testid="stNumberInput"] input,
 div[data-testid="stTextArea"] textarea{
-  background:rgba(111,143,168,.095)!important;
-  border:1px solid rgba(111,143,168,.31)!important;
+  background:var(--input-bg)!important;
+  color:var(--input-text)!important;
+  -webkit-text-fill-color:var(--input-text)!important;
+  border:1px solid var(--border)!important;
   border-radius:12px!important;
-  color:inherit!important;
-  -webkit-text-fill-color:currentColor!important
-}
-div[data-testid="stTextInput"] input:focus,
-div[data-testid="stNumberInput"] input:focus,
-div[data-testid="stTextArea"] textarea:focus{
-  border-color:rgba(111,143,168,.70)!important;
-  box-shadow:0 0 0 2px rgba(111,143,168,.16)!important
+  caret-color:var(--input-text)!important
 }
 div[data-testid="stTextInput"] input::placeholder,
 div[data-testid="stTextArea"] textarea::placeholder{
-  opacity:.55!important
+  color:var(--placeholder)!important;
+  -webkit-text-fill-color:var(--placeholder)!important;
+  opacity:1!important
 }
 div[data-testid="stNumberInput"] button{
-  background:rgba(111,143,168,.13)!important;
-  border-color:rgba(111,143,168,.28)!important;
-  color:inherit!important
+  background:var(--surface-soft)!important;color:var(--text)!important;border-color:var(--border)!important
 }
 
-/* Selects: a little more color than text boxes */
-div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
-div[data-testid="stMultiSelect"] div[data-baseweb="select"] > div{
-  background:rgba(111,143,168,.11)!important;
-  border:1px solid rgba(111,143,168,.32)!important;
+div[data-baseweb="select"] > div,
+div[data-testid="stMultiSelect"] [data-baseweb="select"] > div{
+  background:var(--input-bg)!important;
+  color:var(--input-text)!important;
+  border-color:var(--border)!important;
   border-radius:12px!important;
-  min-height:2.65rem!important;
-  box-shadow:0 2px 8px rgba(15,23,42,.035)!important
 }
-[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2) div[data-baseweb="select"] > div{
-  background:rgba(102,143,134,.11)!important;
-  border-color:rgba(102,143,134,.32)!important
+div[data-baseweb="select"] span,
+div[data-baseweb="select"] input{
+  color:var(--input-text)!important;
+  -webkit-text-fill-color:var(--input-text)!important;
 }
-[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(3) div[data-baseweb="select"] > div{
-  background:rgba(139,130,166,.11)!important;
-  border-color:rgba(139,130,166,.32)!important
+div[data-testid="stSlider"]{
+  color:var(--text)!important;
 }
 
-/* Multi-select chips */
-span[data-baseweb="tag"]{
-  background:rgba(102,143,134,.18)!important;
-  border:1px solid rgba(102,143,134,.34)!important;
-  color:inherit!important
+div[data-testid="stFormSubmitButton"]>button{
+  border-radius:12px!important;min-height:3rem!important;font-weight:750!important;
+  background:linear-gradient(135deg,var(--primary),var(--primary2))!important;
+  color:#fff!important;border:none!important;box-shadow:0 8px 20px rgba(37,99,235,.20)
 }
+div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:#fff!important}
 
-/* Radio / checkbox panels */
-div[data-testid="stRadio"]{
-  background:rgba(139,130,166,.10);
-  border:1px solid rgba(139,130,166,.27);
-  border-radius:14px;padding:.65rem .8rem
-}
-div[data-testid="stCheckbox"]{
-  background:rgba(165,140,102,.075);
-  border-radius:10px;padding:.2rem .35rem
-}
+.result-banner{background:var(--success-bg);border:1px solid var(--success-border);border-radius:18px;padding:1rem 1.15rem;color:var(--success-text);margin-top:1.1rem;margin-bottom:1rem;font-weight:650}
+.disclaimer{background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:16px;padding:.9rem 1rem;color:var(--warning-text);font-size:.9rem;line-height:1.5}
 
-/* File upload + manual editor */
-div[data-testid="stFileUploader"] section{
-  background:rgba(165,140,102,.11)!important;
-  border:1px dashed rgba(165,140,102,.40)!important;
-  border-radius:14px!important
-}
-div[data-testid="stFileUploader"] button{
-  border-color:rgba(165,140,102,.36)!important
-}
-div[data-testid="stDataFrame"]{
-  background:rgba(102,143,134,.08)!important;
-  border:1px solid rgba(102,143,134,.27)!important;
-  border-radius:14px!important;
-  padding:.25rem!important
-}
 
-/* Primary CTA — sober blue/teal, never Streamlit red */
-div[data-testid="stButton"] > button,
-div[data-testid="stFormSubmitButton"] > button,
-button[kind="primary"]{
-  border-radius:12px!important;
-  min-height:3rem!important;
-  font-weight:750!important;
-  background:linear-gradient(135deg,#627f98,#638b82)!important;
-  color:#fff!important;
-  -webkit-text-fill-color:#fff!important;
-  border:1px solid #7894aa!important;
-  box-shadow:0 8px 20px rgba(70,101,125,.20)!important
-}
-div[data-testid="stButton"] > button:hover,
-div[data-testid="stFormSubmitButton"] > button:hover,
-button[kind="primary"]:hover{
-  background:linear-gradient(135deg,#6f8da5,#71988f)!important;
-  color:#fff!important;
-  -webkit-text-fill-color:#fff!important
-}
-
-/* Result panels */
-.result-banner{
-  background:rgba(78,138,104,.13);
-  border:1px solid rgba(78,138,104,.32);
-  border-radius:16px;padding:1rem 1.15rem;
-  color:inherit!important;margin-top:1.1rem;margin-bottom:1rem;font-weight:650
-}
-.disclaimer{
-  background:rgba(165,120,63,.12);
-  border:1px solid rgba(165,120,63,.30);
-  border-radius:16px;padding:.9rem 1rem;
-  color:inherit!important;font-size:.9rem;line-height:1.5
-}
 .item-section-title{
-  display:inline-block;
-  font-size:.74rem;font-weight:800;letter-spacing:.065em;
-  text-transform:uppercase;color:inherit!important;
-  background:rgba(139,130,166,.16);
-  border:1px solid rgba(139,130,166,.32);
-  border-radius:8px;padding:.3rem .55rem;margin:1rem 0 .5rem 0
+  font-size:.76rem;
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--primary);
+  margin:1rem 0 .45rem 0;
 }
 .item-copy{
-  background:rgba(111,143,168,.055);
-  border:1px solid rgba(111,143,168,.22);
-  border-radius:12px;padding:.8rem .9rem;
-  color:inherit;line-height:1.55;margin-bottom:.65rem
+  background:var(--surface-soft);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:.8rem .9rem;
+  color:var(--text);
+  line-height:1.55;
+  margin-bottom:.65rem;
 }
-.status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin:.35rem 0 .9rem 0}
+.status-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:.7rem;
+  margin:.35rem 0 .9rem 0;
+}
 .status-card{
-  background:rgba(111,143,168,.10);
-  border:1px solid rgba(111,143,168,.27);
-  border-radius:12px;padding:.75rem .8rem
+  background:var(--surface-soft);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:.75rem .8rem;
 }
 .status-label{
-  font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;
-  font-weight:800;opacity:.72;margin-bottom:.25rem
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  font-weight:800;
+  color:var(--soft);
+  margin-bottom:.25rem;
 }
-.status-value{font-size:.93rem;font-weight:700;color:inherit;line-height:1.35}
+.status-value{
+  font-size:.93rem;
+  font-weight:700;
+  color:var(--text);
+  line-height:1.35;
+}
 
 .decision-summary-grid{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:.75rem;margin:.75rem 0 1rem 0
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:.75rem;
+  margin:.75rem 0 1rem 0;
 }
-.decision-summary-card{border-radius:14px;padding:.9rem 1rem;border:1px solid transparent}
-.decision-green{background:rgba(78,138,104,.14);border-color:rgba(78,138,104,.34)}
-.decision-amber{background:rgba(165,120,63,.14);border-color:rgba(165,120,63,.34)}
-.decision-red{background:rgba(168,95,98,.14);border-color:rgba(168,95,98,.34)}
+.decision-summary-card{
+  border-radius:14px;
+  padding:.9rem 1rem;
+  border:1px solid transparent;
+}
+.decision-green{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.35)}
+.decision-amber{background:rgba(245,158,11,.13);border-color:rgba(245,158,11,.38)}
+.decision-red{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35)}
 .decision-label{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;font-weight:800;margin-bottom:.2rem}
 .decision-count{font-size:1.5rem;font-weight:800;line-height:1.1}
+.decision-green .decision-label,.decision-green .decision-count{color:#16a34a}
+.decision-amber .decision-label,.decision-amber .decision-count{color:#d97706}
+.decision-red .decision-label,.decision-red .decision-count{color:#dc2626}
 
-.approval-green{background:rgba(78,138,104,.14)!important;border-color:rgba(78,138,104,.34)!important}
-.approval-amber{background:rgba(165,120,63,.14)!important;border-color:rgba(165,120,63,.34)!important}
-.approval-red{background:rgba(168,95,98,.14)!important;border-color:rgba(168,95,98,.34)!important}
-
+.approval-green{background:rgba(34,197,94,.12)!important;border-color:rgba(34,197,94,.35)!important}
+.approval-amber{background:rgba(245,158,11,.13)!important;border-color:rgba(245,158,11,.38)!important}
+.approval-red{background:rgba(239,68,68,.12)!important;border-color:rgba(239,68,68,.35)!important}
+.approval-green .status-value{color:#16a34a!important}
+.approval-amber .status-value{color:#d97706!important}
+.approval-red .status-value{color:#dc2626!important}
 .next-action{
-  background:rgba(102,143,134,.12);
-  border:1px solid rgba(102,143,134,.30);
-  border-radius:14px;padding:1rem;margin-top:.65rem
+  background:var(--primary-soft);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:1rem 1rem;
+  margin-top:.65rem;
 }
 .next-action-title{
-  font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;
-  font-weight:800;color:inherit!important;margin-bottom:.45rem
+  font-size:.78rem;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  font-weight:800;
+  color:var(--primary);
+  margin-bottom:.45rem;
 }
+.next-action strong{color:var(--text)}
 .next-action p{margin:.15rem 0 .65rem 0!important;line-height:1.5}
 
-.recommendation-box{
-  background:linear-gradient(135deg,rgba(111,143,168,.13),rgba(102,143,134,.10));
-  border:1px solid rgba(111,143,168,.30);
-  border-radius:18px;padding:1.1rem 1.15rem;margin:.8rem 0;
-  box-shadow:0 4px 14px rgba(15,23,42,.05)
-}
-.recommendation-title{
-  font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;
-  font-weight:800;color:inherit!important;margin-bottom:.45rem
-}
-.recommendation-headline{font-size:1.15rem;font-weight:800;line-height:1.4;color:inherit}
+.recommendation-box{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.1rem 1.15rem;margin:.8rem 0;box-shadow:var(--shadow)}
+.recommendation-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:var(--primary);margin-bottom:.45rem}
+.recommendation-headline{font-size:1.15rem;font-weight:800;line-height:1.4;color:var(--text)}
 .action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin:.85rem 0 1rem 0}
-.action-card{border:1px solid rgba(125,135,145,.24);border-radius:14px;padding:.9rem 1rem;background:rgba(255,255,255,.025)}
-.action-card h4{margin:0 0 .45rem 0!important;font-size:.94rem!important;color:inherit!important}
+.action-card{border:1px solid var(--border);border-radius:14px;padding:.9rem 1rem;background:var(--surface-soft)}
+.action-card h4{margin:0 0 .45rem 0!important;font-size:.94rem!important}
 .action-card ul{margin:.25rem 0 0 1rem;padding:0}
 .action-card li{margin:.25rem 0;line-height:1.45}
-.action-now{border-left:5px solid #a85f62}
-.action-proceed{border-left:5px solid #4e8a68}
-.action-clarify{border-left:5px solid #a5783f}
-.action-later{border-left:5px solid #74808b}
-.action-optional{border-left:5px solid #8b82a6}
+.action-now{border-left:5px solid #dc2626}
+.action-proceed{border-left:5px solid #16a34a}
+.action-clarify{border-left:5px solid #d97706}
+.action-later{border-left:5px solid #64748b}
+.action-optional{border-left:5px solid #7c3aed}
+@media(max-width:768px){.action-grid{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .status-grid{grid-template-columns:1fr}
+}
 
 @media(max-width:768px){
-  .action-grid,.status-grid{grid-template-columns:1fr}
   .hero{padding:1.5rem 1.25rem;border-radius:18px}
   .block-container{padding-top:1rem}
 }
@@ -592,7 +576,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown('<div class="section-kicker kicker-blue">How it works</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-kicker">How it works</div>', unsafe_allow_html=True)
 st.subheader("Clarity in three simple steps")
 
 c1, c2, c3 = st.columns(3)
@@ -631,7 +615,7 @@ with c3:
     )
 
 st.write("")
-st.markdown('<div class="section-kicker kicker-teal">Your estimate</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-kicker">Your estimate</div>', unsafe_allow_html=True)
 st.subheader("Tell us about the car and the recommended work")
 
 with st.container(border=True):
@@ -697,10 +681,64 @@ with st.container(border=True):
         "Vehicle type filters the manufacturer list, and manufacturer filters the model list."
     )
 
-    with st.container(border=True):
-        st.markdown("##### Car owner details")
+    st.markdown("##### How would you like to add the service estimate?")
+    input_mode = st.radio(
+        "Estimate input method",
+        ["Enter service estimate", "Build estimate manually", "Upload job card photo"],
+        horizontal=True,
+        label_visibility="collapsed",
+        key="estimate_input_mode",
+    )
+
+    manual_rows = []
+    uploaded_job_card = None
+
+    if input_mode == "Build estimate manually":
+        selected_services = st.multiselect(
+            "Select service items",
+            ALL_SERVICE_ITEMS,
+            default=[],
+            placeholder="Choose one or more service items",
+            help="Choose the items listed by the workshop, then add quoted cost and any details below.",
+        )
+
+        if selected_services:
+            default_rows = [
+                {"Service item": item, "Cost (₹)": None, "Details / workshop note": ""}
+                for item in selected_services
+            ]
+            manual_rows = st.data_editor(
+                default_rows,
+                use_container_width=True,
+                hide_index=True,
+                num_rows="fixed",
+                column_config={
+                    "Service item": st.column_config.TextColumn("Service item", disabled=True),
+                    "Cost (₹)": st.column_config.NumberColumn("Cost (₹)", min_value=0, step=100),
+                    "Details / workshop note": st.column_config.TextColumn(
+                        "Details / workshop note",
+                        max_chars=250,
+                    ),
+                },
+                key="manual_estimate_editor",
+            )
+        else:
+            st.info("Select at least one service item to build the estimate.")
+
+    elif input_mode == "Upload job card photo":
+        uploaded_job_card = st.file_uploader(
+            "Upload a clear photo of the service estimate / job card",
+            type=["jpg", "jpeg", "png"],
+            accept_multiple_files=False,
+            help="Use a clear, readable image. Avoid uploading registration number, VIN, phone number or other unnecessary personal information.",
+        )
+        if uploaded_job_card is not None:
+            st.image(uploaded_job_card, caption="Uploaded job card", width="stretch")
+
+    with st.form("estimate_form"):
+        st.markdown("##### Tester details")
         st.caption(
-            "Used to identify the car owner for this service-estimate review and optional feedback. "
+            "Used only to link this MVP test with the saved estimate and feedback. "
             "Name and email are stored in the private research sheet and are not sent to the AI model."
         )
 
@@ -711,7 +749,7 @@ with st.container(border=True):
             user_email = st.text_input("Email *", placeholder="name@example.com", max_chars=254)
 
         consent = st.checkbox(
-            "I agree that my name, email, estimate details and optional feedback may be stored for this course MVP evaluation."
+            "I agree that my name, email, estimate details and feedback may be stored for this course MVP evaluation."
         )
 
         st.markdown("##### Vehicle details")
@@ -788,25 +826,7 @@ with st.container(border=True):
 
         symptoms = ", ".join(symptoms_selected) if symptoms_selected else "No noticeable symptoms reported"
 
-        st.divider()
-        st.markdown("##### Workshop estimate / job card")
-        st.caption(
-            "Now add what the service advisor or workshop has recommended. "
-            "This is separate from the issues you noticed above."
-        )
-
-        input_mode = st.radio(
-            "How would you like to add the workshop estimate?",
-            ["Enter service estimate", "Build job card manually", "Upload job card photo"],
-            horizontal=True,
-            key="estimate_input_mode",
-        )
-
-        manual_rows = []
-        manual_quoted_total = 0.0
-        uploaded_job_card = None
         estimate = ""
-
         if input_mode == "Enter service estimate":
             st.markdown("##### Service estimate / job card")
             st.caption("Enter or copy the service items exactly as shown on the workshop estimate or job card. Prices are optional.")
@@ -821,84 +841,31 @@ with st.container(border=True):
                     "Front brake pads - ₹7,500"
                 ),
             )
-        elif input_mode == "Build job card manually":
-            st.caption(
-                "Enter the workshop's recommended work and quoted price exactly as communicated. "
-                "Add or remove rows as needed — you do not need to select the owner's issues again."
-            )
-            manual_rows = st.data_editor(
-                [
-                    {"Recommended work / service item": "", "Quoted cost (₹)": None, "Workshop note / reason": ""},
-                    {"Recommended work / service item": "", "Quoted cost (₹)": None, "Workshop note / reason": ""},
-                    {"Recommended work / service item": "", "Quoted cost (₹)": None, "Workshop note / reason": ""},
-                ],
-                use_container_width=True,
-                hide_index=True,
-                num_rows="dynamic",
-                column_config={
-                    "Recommended work / service item": st.column_config.TextColumn(
-                        "Recommended work / service item",
-                        help="Enter the job or part recommended by the workshop.",
-                        max_chars=120,
-                    ),
-                    "Quoted cost (₹)": st.column_config.NumberColumn(
-                        "Quoted cost (₹)",
-                        min_value=0,
-                        step=100,
-                    ),
-                    "Workshop note / reason": st.column_config.TextColumn(
-                        "Workshop note / reason",
-                        help="Optional: copy the advisor's reason or note.",
-                        max_chars=250,
-                    ),
-                },
-                key="manual_job_card_editor",
-            )
-
+        elif input_mode == "Build estimate manually":
             manual_lines = []
-            if manual_rows is not None:
-                rows_iter = (
-                    manual_rows.to_dict("records")
-                    if hasattr(manual_rows, "to_dict")
-                    else manual_rows
-                )
-                for row in rows_iter:
-                    item = str(row.get("Recommended work / service item", "") or "").strip()
-                    cost = row.get("Quoted cost (₹)")
-                    details = str(row.get("Workshop note / reason", "") or "").strip()
+            if manual_rows:
+                for row in manual_rows:
+                    item = str(row.get("Service item", "")).strip()
+                    cost = row.get("Cost (₹)")
+                    details = str(row.get("Details / workshop note", "") or "").strip()
                     if item:
                         line = item
                         if cost is not None:
                             try:
-                                numeric_cost = float(cost)
-                                if numeric_cost >= 0:
-                                    manual_quoted_total += numeric_cost
-                                    line += f" - ₹{numeric_cost:,.0f}"
+                                line += f" - ₹{float(cost):,.0f}"
                             except (TypeError, ValueError):
                                 pass
                         if details:
                             line += f" | {details}"
                         manual_lines.append(line)
             estimate = "\n".join(manual_lines)
-            if manual_lines:
-                st.caption("These workshop recommendations and quoted costs will be analysed against the vehicle context and owner-reported issues.")
-            else:
-                st.info("Add at least one workshop-recommended job or service item.")
-
+            st.caption("The selected items and costs above will be analysed when you submit.")
         else:
-            uploaded_job_card = st.file_uploader(
-                "Upload the workshop estimate / job card",
-                type=["jpg", "jpeg", "png"],
-                accept_multiple_files=False,
-                help="Use a clear, readable image. Avoid uploading registration number, VIN, phone number or other unnecessary personal information.",
-                key="job_card_uploader",
-            )
             if uploaded_job_card is not None:
-                st.image(uploaded_job_card, caption="Uploaded workshop job card", width="stretch")
                 estimate = f"Uploaded job card image: {uploaded_job_card.name}"
-            st.caption("The uploaded workshop job-card photo will be read by the AI when you analyse it.")
+            st.caption("The uploaded job-card photo will be read by the AI when you submit.")
 
-        submitted = st.button(
+        submitted = st.form_submit_button(
             "✨ Analyse My Estimate",
             type="primary",
             use_container_width=True,
@@ -909,44 +876,18 @@ st.caption(
 )
 
 def parse_quoted_total(text):
-    """Sum prices explicitly entered in service-estimate text.
-
-    Prefer currency-marked values. If a line has no currency marker, accept a
-    trailing amount after a common price separator such as '-' or ':'.
-    """
     amounts = []
-
-    currency_patterns = [
+    patterns = [
         r"₹\s*([0-9][0-9,]*(?:\.\d{1,2})?)",
         r"(?i)rs\.?\s*([0-9][0-9,]*(?:\.\d{1,2})?)",
         r"(?i)inr\s*([0-9][0-9,]*(?:\.\d{1,2})?)",
     ]
-
-    for line in text.splitlines():
-        line_amounts = []
-        for pattern in currency_patterns:
-            for value in re.findall(pattern, line):
-                try:
-                    line_amounts.append(float(value.replace(",", "")))
-                except ValueError:
-                    pass
-
-        if line_amounts:
-            amounts.extend(line_amounts)
-            continue
-
-        # Also support common manually typed formats such as
-        # "Brake pads - 7500" or "Oil filter: 850".
-        match = re.search(
-            r"(?:-|:|=)\s*([0-9][0-9,]*(?:\.\d{1,2})?)\s*$",
-            line.strip(),
-        )
-        if match:
+    for pattern in patterns:
+        for value in re.findall(pattern, text):
             try:
-                amounts.append(float(match.group(1).replace(",", "")))
+                amounts.append(float(value.replace(",", "")))
             except ValueError:
                 pass
-
     return sum(amounts)
 
 
@@ -955,7 +896,7 @@ def quoted_total_from_items(items):
     found = False
     for item in items:
         price = str(item.get("quoted_price", ""))
-        match = re.search(r"([0-9][0-9,]*(?:\.\d{1,2})?)", price)
+        match = re.search(r"([0-9][0-9,]*(?:\\.\\d{1,2})?)", price)
         if match:
             try:
                 total += float(match.group(1).replace(",", ""))
@@ -1114,8 +1055,8 @@ if submitted:
         st.warning("Please select when the car was last serviced.")
     elif input_mode == "Enter service estimate" and not is_valid_estimate(estimate):
         st.warning("Please enter a valid service estimate between 10 and 6,000 characters.")
-    elif input_mode == "Build job card manually" and not estimate.strip():
-        st.warning("Please add at least one workshop-recommended job or service item.")
+    elif input_mode == "Build estimate manually" and not manual_rows:
+        st.warning("Please select at least one service item and add the estimate details.")
     elif input_mode == "Upload job card photo" and uploaded_job_card is None:
         st.warning("Please upload a JPG, JPEG or PNG job-card image.")
     elif input_mode == "Upload job card photo" and uploaded_job_card.size > 8 * 1024 * 1024:
@@ -1240,19 +1181,18 @@ Strict rules:
                 try:
                     data = extract_json(response.text)
                     items = data.get("items", [])
-                    if input_mode == "Build job card manually":
-                        quoted_total = manual_quoted_total
-                    elif input_mode == "Upload job card photo":
-                        quoted_total = quoted_total_from_items(items)
-                    else:
-                        quoted_total = parse_quoted_total(estimate)
+                    quoted_total = (
+                        quoted_total_from_items(items)
+                        if input_mode == "Upload job card photo"
+                        else parse_quoted_total(estimate)
+                    )
 
                     st.markdown(
                         '<div class="result-banner">✓ Analysis complete. Review the decision dashboard before speaking with your service advisor.</div>',
                         unsafe_allow_html=True,
                     )
 
-                    st.markdown('<div class="section-kicker kicker-lavender">Decision dashboard</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="section-kicker">Decision dashboard</div>', unsafe_allow_html=True)
                     st.subheader("What your estimate is telling you")
 
                     evidence_needed = sum(
@@ -1317,7 +1257,7 @@ Strict rules:
 
                     recommendation = data.get("customer_recommendation", {})
                     if recommendation:
-                        st.markdown('<div class="section-kicker kicker-lavender">Your decision</div>', unsafe_allow_html=True)
+                        st.markdown('<div class="section-kicker">Your decision</div>', unsafe_allow_html=True)
                         st.subheader("Recommended next steps")
 
                         headline = str(recommendation.get("headline", "")).strip()
@@ -1371,7 +1311,7 @@ Strict rules:
 
                     m1, m2, m3, m4 = st.columns(4)
                     with m1:
-                        st.metric("Quoted total", f"₹{quoted_total:,.0f}" if quoted_total > 0 else "Not available")
+                        st.metric("Quoted total", f"₹{quoted_total:,.0f}" if quoted_total else "Not available")
                     with m2:
                         st.metric("Line items", len(items))
                     with m3:
@@ -1538,7 +1478,7 @@ Strict rules:
 
 if st.session_state.get("feedback_available"):
     st.write("")
-    st.markdown('<div class="section-kicker kicker-sand">Help us improve</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-kicker">Help us improve</div>', unsafe_allow_html=True)
     st.subheader("How useful was this analysis?")
 
     if st.session_state.get("feedback_submitted"):
@@ -1546,7 +1486,7 @@ if st.session_state.get("feedback_available"):
     else:
         with st.container(border=True):
             st.caption(
-                "Your feedback is linked to the car owner name and email entered above. "
+                "Your feedback is linked to the name and email entered for this MVP test. "
                 "Please do not include registration numbers, VINs, phone numbers or other sensitive details in comments."
             )
 
