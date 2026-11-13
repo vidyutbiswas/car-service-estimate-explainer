@@ -5,17 +5,17 @@ buttonRadius = "medium"
 showWidgetBorder = true
 
 [theme.light]
-primaryColor = "#2563EB"
+primaryColor = "#4F6B82"
 backgroundColor = "#F7F9FC"
 secondaryBackgroundColor = "#FFFFFF"
 textColor = "#0F172A"
 borderColor = "#D7DEE8"
-linkColor = "#2563EB"
+linkColor = "#4F6B82"
 
 [theme.dark]
-primaryColor = "#60A5FA"
+primaryColor = "#8AA0B4"
 backgroundColor = "#0B1120"
 secondaryBackgroundColor = "#111827"
 textColor = "#F8FAFC"
 borderColor = "#334155"
-linkColor = "#93C5FD"
+linkColor = "#A7B6C3"
