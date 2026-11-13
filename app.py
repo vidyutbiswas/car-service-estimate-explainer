@@ -151,6 +151,35 @@ h1,h2,h3{letter-spacing:-.025em}
   margin-bottom:.42rem
 }
 
+/* Coordinated section identities */
+.kicker-blue{background:var(--blue-panel)!important;border-color:var(--blue-border)!important;color:var(--blue-text)!important}
+.kicker-teal{background:var(--teal-panel)!important;border-color:var(--teal-border)!important;color:var(--teal-text)!important}
+.kicker-lavender{background:var(--lavender-panel)!important;border-color:var(--lavender-border)!important;color:var(--lavender-text)!important}
+.kicker-sand{background:var(--sand-panel)!important;border-color:var(--sand-border)!important;color:var(--sand-text)!important}
+
+/* Inputs use gentle column-based tints to improve scanability */
+[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(1) div[data-baseweb="select"] > div{
+  background:linear-gradient(180deg,var(--surface),var(--blue-panel))!important;
+  border-color:var(--blue-border)!important;
+}
+[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2) div[data-baseweb="select"] > div{
+  background:linear-gradient(180deg,var(--surface),var(--teal-panel))!important;
+  border-color:var(--teal-border)!important;
+}
+[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(3) div[data-baseweb="select"] > div{
+  background:linear-gradient(180deg,var(--surface),var(--lavender-panel))!important;
+  border-color:var(--lavender-border)!important;
+}
+[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(1) div[data-testid="stWidgetLabel"]{
+  color:var(--blue-text)!important;
+}
+[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2) div[data-testid="stWidgetLabel"]{
+  color:var(--teal-text)!important;
+}
+[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(3) div[data-testid="stWidgetLabel"]{
+  color:var(--lavender-text)!important;
+}
+
 /* How-it-works cards: coordinated, not identical */
 .step-card{
   min-height:138px;
@@ -715,7 +744,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown('<div class="section-kicker">How it works</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-kicker kicker-blue">How it works</div>', unsafe_allow_html=True)
 st.subheader("Clarity in three simple steps")
 
 c1, c2, c3 = st.columns(3)
@@ -754,7 +783,7 @@ with c3:
     )
 
 st.write("")
-st.markdown('<div class="section-kicker">Your estimate</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-kicker kicker-teal">Your estimate</div>', unsafe_allow_html=True)
 st.subheader("Tell us about the car and the recommended work")
 
 with st.container(border=True):
@@ -1375,7 +1404,7 @@ Strict rules:
                         unsafe_allow_html=True,
                     )
 
-                    st.markdown('<div class="section-kicker">Decision dashboard</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="section-kicker kicker-lavender">Decision dashboard</div>', unsafe_allow_html=True)
                     st.subheader("What your estimate is telling you")
 
                     evidence_needed = sum(
@@ -1440,7 +1469,7 @@ Strict rules:
 
                     recommendation = data.get("customer_recommendation", {})
                     if recommendation:
-                        st.markdown('<div class="section-kicker">Your decision</div>', unsafe_allow_html=True)
+                        st.markdown('<div class="section-kicker kicker-lavender">Your decision</div>', unsafe_allow_html=True)
                         st.subheader("Recommended next steps")
 
                         headline = str(recommendation.get("headline", "")).strip()
@@ -1661,7 +1690,7 @@ Strict rules:
 
 if st.session_state.get("feedback_available"):
     st.write("")
-    st.markdown('<div class="section-kicker">Help us improve</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-kicker kicker-sand">Help us improve</div>', unsafe_allow_html=True)
     st.subheader("How useful was this analysis?")
 
     if st.session_state.get("feedback_submitted"):
