@@ -30,6 +30,27 @@ st.markdown(
 }
 h1,h2,h3{letter-spacing:-.025em}
 
+.section-heading{
+  margin:1.45rem 0 .95rem 0;
+}
+.section-title{
+  font-size:clamp(1.35rem,2.4vw,1.85rem);
+  line-height:1.18;
+  font-weight:800;
+  letter-spacing:-.025em;
+  margin-top:.15rem;
+}
+.section-copy{
+  max-width:760px;
+  margin-top:.35rem;
+  font-size:.94rem;
+  line-height:1.55;
+  opacity:.68;
+}
+.section-heading-estimate{
+  margin-top:1.7rem;
+}
+
 /* Keep all custom text theme-aware */
 .hero,.hero-title,.hero-copy,.trust-pill,.section-kicker,
 .step-card,.step-number,.step-title,.step-copy,
@@ -41,12 +62,78 @@ h1,h2,h3{letter-spacing:-.025em}
 
 /* Hero */
 .hero{
-  padding:2.2rem 2.3rem;
-  border-radius:24px;
-  background:linear-gradient(135deg,rgba(92,126,156,.12),rgba(88,139,126,.08));
+  padding:2.15rem 2.2rem;
+  border-radius:26px;
+  background:
+    linear-gradient(135deg,rgba(92,126,156,.13),rgba(88,139,126,.075)),
+    rgba(127,127,127,.018);
   border:1px solid rgba(92,126,156,.28);
-  box-shadow:0 10px 28px rgba(15,23,42,.07);
-  margin-bottom:1.3rem;
+  box-shadow:0 14px 34px rgba(15,23,42,.075);
+  margin-bottom:1.4rem;
+  display:grid;
+  grid-template-columns:minmax(0,1.6fr) minmax(270px,.8fr);
+  gap:1.6rem;
+  align-items:stretch;
+}
+.hero-main{
+  padding:.15rem 0;
+}
+.hero-side{
+  background:rgba(127,127,127,.055);
+  border:1px solid rgba(127,127,127,.18);
+  border-radius:20px;
+  padding:1rem 1rem .95rem 1rem;
+  backdrop-filter:blur(8px);
+}
+.lens-kicker{
+  font-size:.7rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  opacity:.58;
+  margin-bottom:.28rem;
+}
+.lens-title{
+  font-size:1rem;
+  font-weight:780;
+  line-height:1.3;
+  margin-bottom:.75rem;
+}
+.lens-grid{
+  display:grid;
+  gap:.46rem;
+}
+.lens-item{
+  display:grid;
+  grid-template-columns:32px 1fr;
+  gap:.55rem;
+  align-items:center;
+  padding:.55rem .6rem;
+  border-radius:12px;
+  border:1px solid rgba(92,126,156,.18);
+  background:rgba(92,126,156,.055);
+  font-size:.84rem;
+}
+.lens-item:nth-child(2){
+  background:rgba(88,139,126,.06);
+  border-color:rgba(88,139,126,.18);
+}
+.lens-item:nth-child(3){
+  background:rgba(130,116,157,.06);
+  border-color:rgba(130,116,157,.18);
+}
+.lens-item:nth-child(4){
+  background:rgba(165,140,102,.055);
+  border-color:rgba(165,140,102,.18);
+}
+.lens-item span{
+  font-size:.68rem;
+  font-weight:800;
+  opacity:.48;
+}
+.lens-item strong{
+  font-weight:700;
+  line-height:1.25;
 }
 .eyebrow{
   display:inline-flex;
@@ -119,53 +206,95 @@ h1,h2,h3{letter-spacing:-.025em}
   display:inline-block;
 }
 
-/* How it works */
-.step-card{
-  min-height:138px;
-  border-radius:18px;
-  padding:1.05rem 1.1rem;
-  box-shadow:0 4px 14px rgba(15,23,42,.05);
-  border:1px solid rgba(127,127,127,.20);
+/* How it works — staggered journey */
+div[data-testid="stHorizontalBlock"]:has(.step-card){
+  position:relative;
+  align-items:stretch;
+  margin-bottom:1.45rem;
 }
-[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(1) .step-card{
+div[data-testid="stHorizontalBlock"]:has(.step-card)::before{
+  content:"";
+  position:absolute;
+  left:15%;
+  right:15%;
+  top:42px;
+  height:1px;
+  background:linear-gradient(90deg,
+    rgba(92,126,156,.34),
+    rgba(88,139,126,.34),
+    rgba(130,116,157,.34));
+  z-index:0;
+}
+.step-card{
+  position:relative;
+  z-index:1;
+  min-height:154px;
+  border-radius:19px;
+  padding:1.05rem 1.1rem;
+  box-shadow:0 7px 18px rgba(15,23,42,.06);
+  border:1px solid rgba(127,127,127,.20);
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.step-card:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 12px 24px rgba(15,23,42,.09);
+}
+.step-blue{
   background:rgba(92,126,156,.12);
   border-color:rgba(92,126,156,.28);
 }
-[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2) .step-card{
+.step-teal{
   background:rgba(88,139,126,.11);
   border-color:rgba(88,139,126,.27);
+  transform:translateY(12px);
 }
-[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(3) .step-card{
+.step-lavender{
   background:rgba(130,116,157,.11);
   border-color:rgba(130,116,157,.27);
+  transform:translateY(24px);
+}
+.step-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.75rem;
+  margin-bottom:.75rem;
 }
 .step-number{
-  width:32px;height:32px;
-  border-radius:9px;
+  width:34px;height:34px;
+  border-radius:10px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
   background:rgba(127,127,127,.08);
   border:1px solid rgba(127,127,127,.22);
   font-weight:800;
-  margin-bottom:.65rem;
+}
+.step-icon{
+  font-size:.65rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  opacity:.48;
 }
 .step-title{
-  font-weight:760;
-  margin-bottom:.2rem;
+  font-size:1rem;
+  font-weight:780;
+  margin-bottom:.28rem;
 }
 .step-copy{
   font-size:.9rem;
-  line-height:1.45;
+  line-height:1.5;
   opacity:.72;
 }
 
 /* Main panels */
 div[data-testid="stVerticalBlockBorderWrapper"]>div{
-  background:rgba(92,126,156,.045)!important;
+  background:
+    linear-gradient(180deg,rgba(92,126,156,.065),rgba(92,126,156,.025))!important;
   border:1px solid rgba(92,126,156,.24)!important;
-  border-radius:18px!important;
-  box-shadow:0 4px 16px rgba(15,23,42,.04);
+  border-radius:20px!important;
+  box-shadow:0 7px 20px rgba(15,23,42,.045);
+  overflow:hidden;
 }
 div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlockBorderWrapper"]>div{
   background:rgba(88,139,126,.05)!important;
@@ -431,10 +560,17 @@ button[kind="primary"]:hover{
 .action-later{border-left:5px solid #74808b}
 .action-optional{border-left:5px solid #8b82a6}
 
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .hero-side{max-width:none}
+}
 @media(max-width:768px){
   .action-grid,.status-grid{grid-template-columns:1fr}
   .hero{padding:1.5rem 1.25rem;border-radius:18px}
   .block-container{padding-top:1rem}
+  div[data-testid="stHorizontalBlock"]:has(.step-card)::before{display:none}
+  .step-teal,.step-lavender{transform:none}
+  .step-card{min-height:0}
 }
 </style>
     """,
@@ -677,32 +813,52 @@ LAST_SERVICE_OPTIONS = [
 st.markdown(
     """
     <div class="hero">
+      <div class="hero-main">
         <div class="eyebrow">AI-assisted service decision support</div>
         <div class="hero-title">Car Service Estimate Explainer</div>
         <p class="hero-copy">
-            Turn a confusing service estimate into plain-language explanations, evidence to request,
-            and practical questions to ask before you approve the work.
+          Turn a confusing service estimate into plain-language explanations, evidence to request,
+          and practical questions to ask before you approve the work.
         </p>
         <div class="trust-row">
-            <span class="trust-pill">✓ No remote diagnosis</span>
-            <span class="trust-pill">✓ Evidence-first guidance</span>
-            <span class="trust-pill">✓ Clear questions for the advisor</span>
-            <span class="trust-pill">✓ Your input stays the source of truth</span>
+          <span class="trust-pill">✓ No remote diagnosis</span>
+          <span class="trust-pill">✓ Evidence-first guidance</span>
+          <span class="trust-pill">✓ Clear questions for the advisor</span>
+          <span class="trust-pill">✓ Your input stays the source of truth</span>
         </div>
+      </div>
+      <div class="hero-side">
+        <div class="lens-kicker">Decision lens</div>
+        <div class="lens-title">Before you approve, know:</div>
+        <div class="lens-grid">
+          <div class="lens-item"><span>01</span><strong>Is it necessary?</strong></div>
+          <div class="lens-item"><span>02</span><strong>How urgent is it?</strong></div>
+          <div class="lens-item"><span>03</span><strong>What evidence should I ask for?</strong></div>
+          <div class="lens-item"><span>04</span><strong>What should I clarify?</strong></div>
+        </div>
+      </div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-st.markdown('<div class="section-kicker">How it works</div>', unsafe_allow_html=True)
-st.subheader("Clarity in three simple steps")
+st.markdown(
+    """
+    <div class="section-heading">
+      <div class="section-kicker">How it works</div>
+      <div class="section-title">Clarity in three simple steps</div>
+      <div class="section-copy">A short guided flow from workshop estimate to a more confident approval decision.</div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 c1, c2, c3 = st.columns(3)
 with c1:
     st.markdown(
         """
-        <div class="step-card">
-            <div class="step-number">1</div>
+        <div class="step-card step-blue">
+            <div class="step-top"><div class="step-number">1</div><div class="step-icon">VEHICLE</div></div>
             <div class="step-title">Add vehicle context</div>
             <div class="step-copy">Enter the basic vehicle details that help frame the estimate.</div>
         </div>
@@ -712,8 +868,8 @@ with c1:
 with c2:
     st.markdown(
         """
-        <div class="step-card">
-            <div class="step-number">2</div>
+        <div class="step-card step-teal">
+            <div class="step-top"><div class="step-number">2</div><div class="step-icon">ESTIMATE</div></div>
             <div class="step-title">Add your service estimate</div>
             <div class="step-copy">Enter, build, or upload the workshop estimate or job card.</div>
         </div>
@@ -723,8 +879,8 @@ with c2:
 with c3:
     st.markdown(
         """
-        <div class="step-card">
-            <div class="step-number">3</div>
+        <div class="step-card step-lavender">
+            <div class="step-top"><div class="step-number">3</div><div class="step-icon">DECIDE</div></div>
             <div class="step-title">Review before approval</div>
             <div class="step-copy">Understand each item, what evidence to ask for, and what to clarify.</div>
         </div>
@@ -733,8 +889,16 @@ with c3:
     )
 
 st.write("")
-st.markdown('<div class="section-kicker">Your estimate</div>', unsafe_allow_html=True)
-st.subheader("Tell us about the car and the recommended work")
+st.markdown(
+    """
+    <div class="section-heading section-heading-estimate">
+      <div class="section-kicker">Your estimate</div>
+      <div class="section-title">Tell us about the car and the recommended work</div>
+      <div class="section-copy">Add only what you know. The app uses your vehicle context and workshop estimate as the source of truth.</div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 with st.container(border=True):
     st.markdown("##### Vehicle details")
