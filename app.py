@@ -19,113 +19,44 @@ st.markdown(
     """
     <style>
 :root{
-  --page-bg:#f7f9fc;
-  --accent1:rgba(219,234,254,.82);
-  --accent2:rgba(220,252,231,.62);
-  --surface:#ffffff;
-  --surface-soft:#f8fafc;
-  --text:#0f172a;
-  --muted:#475569;
-  --soft:#64748b;
-  --border:#d7dee8;
-  --input-bg:#ffffff;
-  --input-text:#0f172a;
-  --placeholder:#94a3b8;
-  --primary:#2563eb;
-  --primary2:#3b82f6;
-  --primary-soft:#eff6ff;
-  --success-bg:#ecfdf5;
-  --success-border:#bbf7d0;
-  --success-text:#166534;
-  --warning-bg:#fff7ed;
-  --warning-border:#fed7aa;
-  --warning-text:#9a3412;
-  --shadow:0 12px 36px rgba(15,23,42,.07);
+  /* Follow Streamlit's active theme (System / Light / Dark). */
+  --page-bg:var(--background-color);
+  --surface:var(--secondary-background-color);
+  --surface-soft:color-mix(in srgb,var(--secondary-background-color) 82%,var(--background-color));
+  --text:var(--text-color);
+  --muted:color-mix(in srgb,var(--text-color) 76%,var(--background-color));
+  --soft:color-mix(in srgb,var(--text-color) 58%,var(--background-color));
+  --border:var(--border-color);
+  --input-bg:var(--secondary-background-color);
+  --input-text:var(--text-color);
+  --placeholder:color-mix(in srgb,var(--text-color) 46%,var(--background-color));
+  --primary:var(--primary-color);
+  --primary2:color-mix(in srgb,var(--primary-color) 78%,#60a5fa);
+  --primary-soft:color-mix(in srgb,var(--primary-color) 12%,var(--secondary-background-color));
+  --accent1:color-mix(in srgb,var(--primary-color) 10%,transparent);
+  --accent2:color-mix(in srgb,#10b981 8%,transparent);
+  --success-base:#16a34a;
+  --success-bg:color-mix(in srgb,var(--success-base) 13%,var(--surface));
+  --success-border:color-mix(in srgb,var(--success-base) 34%,var(--border));
+  --success-text:color-mix(in srgb,var(--success-base) 64%,var(--text));
+  --warning-base:#d97706;
+  --warning-bg:color-mix(in srgb,var(--warning-base) 12%,var(--surface));
+  --warning-border:color-mix(in srgb,var(--warning-base) 32%,var(--border));
+  --warning-text:color-mix(in srgb,var(--warning-base) 64%,var(--text));
+  --shadow:0 12px 36px color-mix(in srgb,var(--text-color) 8%,transparent);
 }
 
-@media (prefers-color-scheme: dark){
-  :root{
-    --page-bg:#0b1120;
-    --accent1:rgba(30,64,175,.22);
-    --accent2:rgba(5,150,105,.15);
-    --surface:#111827;
-    --surface-soft:#172033;
-    --text:#f8fafc;
-    --muted:#cbd5e1;
-    --soft:#94a3b8;
-    --border:#334155;
-    --input-bg:#0f172a;
-    --input-text:#f8fafc;
-    --placeholder:#94a3b8;
-    --primary:#60a5fa;
-    --primary2:#3b82f6;
-    --primary-soft:rgba(37,99,235,.18);
-    --success-bg:rgba(6,78,59,.38);
-    --success-border:rgba(52,211,153,.30);
-    --success-text:#a7f3d0;
-    --warning-bg:rgba(124,45,18,.34);
-    --warning-border:rgba(251,146,60,.30);
-    --warning-text:#fed7aa;
-    --shadow:0 14px 40px rgba(0,0,0,.24);
-  }
+.stApp,
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"],
+[data-testid="stMainBlockContainer"]{
+  background-color:var(--page-bg)!important;
+  color:var(--text)!important;
 }
-
-html[data-theme="dark"]{
-  --page-bg:#0b1120;
-  --accent1:rgba(30,64,175,.22);
-  --accent2:rgba(5,150,105,.15);
-  --surface:#111827;
-  --surface-soft:#172033;
-  --text:#f8fafc;
-  --muted:#cbd5e1;
-  --soft:#94a3b8;
-  --border:#334155;
-  --input-bg:#0f172a;
-  --input-text:#f8fafc;
-  --placeholder:#94a3b8;
-  --primary:#60a5fa;
-  --primary2:#3b82f6;
-  --primary-soft:rgba(37,99,235,.18);
-  --success-bg:rgba(6,78,59,.38);
-  --success-border:rgba(52,211,153,.30);
-  --success-text:#a7f3d0;
-  --warning-bg:rgba(124,45,18,.34);
-  --warning-border:rgba(251,146,60,.30);
-  --warning-text:#fed7aa;
-  --shadow:0 14px 40px rgba(0,0,0,.24);
-}
-
-html[data-theme="light"]{
-  --page-bg:#f7f9fc;
-  --accent1:rgba(219,234,254,.82);
-  --accent2:rgba(220,252,231,.62);
-  --surface:#ffffff;
-  --surface-soft:#f8fafc;
-  --text:#0f172a;
-  --muted:#475569;
-  --soft:#64748b;
-  --border:#d7dee8;
-  --input-bg:#ffffff;
-  --input-text:#0f172a;
-  --placeholder:#94a3b8;
-  --primary:#2563eb;
-  --primary2:#3b82f6;
-  --primary-soft:#eff6ff;
-  --success-bg:#ecfdf5;
-  --success-border:#bbf7d0;
-  --success-text:#166534;
-  --warning-bg:#fff7ed;
-  --warning-border:#fed7aa;
-  --warning-text:#9a3412;
-  --shadow:0 12px 36px rgba(15,23,42,.07);
-}
-
 .stApp{
-  background:
+  background-image:
     radial-gradient(circle at top left,var(--accent1),transparent 34%),
-    radial-gradient(circle at top right,var(--accent2),transparent 30%),
-    var(--page-bg);
-  color:var(--text);
+    radial-gradient(circle at top right,var(--accent2),transparent 30%)!important;
 }
 .block-container{max-width:1180px;padding-top:2.2rem;padding-bottom:4rem}
 .stApp h1,.stApp h2,.stApp h3,.stApp h4,.stApp h5,.stApp h6,
@@ -200,9 +131,9 @@ div[data-testid="stSlider"]{
 div[data-testid="stFormSubmitButton"]>button{
   border-radius:12px!important;min-height:3rem!important;font-weight:750!important;
   background:linear-gradient(135deg,var(--primary),var(--primary2))!important;
-  color:#fff!important;border:none!important;box-shadow:0 8px 20px rgba(37,99,235,.20)
+  color:var(--button-text-color,#fff)!important;border:none!important;box-shadow:0 8px 20px color-mix(in srgb,var(--primary) 22%,transparent)
 }
-div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:#fff!important}
+div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:var(--button-text-color,#fff)!important}
 
 .result-banner{background:var(--success-bg);border:1px solid var(--success-border);border-radius:18px;padding:1rem 1.15rem;color:var(--success-text);margin-top:1.1rem;margin-bottom:1rem;font-weight:650}
 .disclaimer{background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:16px;padding:.9rem 1rem;color:var(--warning-text);font-size:.9rem;line-height:1.5}
