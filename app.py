@@ -19,33 +19,36 @@ st.markdown(
     """
     <style>
 :root{
-  /* Follow Streamlit's active theme (System / Light / Dark). */
+  /* Minimal, neutral design system that follows Streamlit's active theme. */
   --page-bg:var(--background-color);
   --surface:var(--secondary-background-color);
-  --surface-soft:color-mix(in srgb,var(--secondary-background-color) 82%,var(--background-color));
+  --surface-soft:color-mix(in srgb,var(--secondary-background-color) 88%,var(--background-color));
   --text:var(--text-color);
-  --muted:color-mix(in srgb,var(--text-color) 76%,var(--background-color));
-  --soft:color-mix(in srgb,var(--text-color) 58%,var(--background-color));
-  --border:var(--border-color);
+  --muted:color-mix(in srgb,var(--text-color) 72%,var(--background-color));
+  --soft:color-mix(in srgb,var(--text-color) 54%,var(--background-color));
+  --border:color-mix(in srgb,var(--text-color) 14%,var(--background-color));
   --input-bg:var(--secondary-background-color);
   --input-text:var(--text-color);
-  --placeholder:color-mix(in srgb,var(--text-color) 46%,var(--background-color));
-  --brand-accent:#4f6b82;
-  --brand-accent-dark:#8aa0b4;
-  --primary:var(--brand-accent);
-  --primary2:#6f879b;
-  --primary-soft:color-mix(in srgb,var(--brand-accent) 10%,var(--secondary-background-color));
-  --accent1:color-mix(in srgb,var(--brand-accent) 8%,transparent);
-  --accent2:color-mix(in srgb,#10b981 8%,transparent);
-  --success-base:#16a34a;
-  --success-bg:color-mix(in srgb,var(--success-base) 13%,var(--surface));
-  --success-border:color-mix(in srgb,var(--success-base) 34%,var(--border));
-  --success-text:color-mix(in srgb,var(--success-base) 64%,var(--text));
-  --warning-base:#d97706;
-  --warning-bg:color-mix(in srgb,var(--warning-base) 12%,var(--surface));
-  --warning-border:color-mix(in srgb,var(--warning-base) 32%,var(--border));
-  --warning-text:color-mix(in srgb,var(--warning-base) 64%,var(--text));
-  --shadow:0 10px 28px color-mix(in srgb,var(--text-color) 6%,transparent);
+  --placeholder:color-mix(in srgb,var(--text-color) 44%,var(--background-color));
+
+  /* Adaptive steel accent: darker in Light mode, lighter in Dark mode. */
+  --accent:color-mix(in srgb,var(--text-color) 28%,#607d93 72%);
+  --accent-strong:color-mix(in srgb,var(--text-color) 40%,#526f86 60%);
+  --accent-soft:color-mix(in srgb,var(--accent) 10%,var(--surface));
+  --accent-border:color-mix(in srgb,var(--accent) 26%,var(--border));
+  --accent-glow:color-mix(in srgb,var(--accent) 7%,transparent);
+
+  --success-base:#2f855a;
+  --success-bg:color-mix(in srgb,var(--success-base) 11%,var(--surface));
+  --success-border:color-mix(in srgb,var(--success-base) 28%,var(--border));
+  --success-text:color-mix(in srgb,var(--success-base) 52%,var(--text));
+  --warning-base:#b7791f;
+  --warning-bg:color-mix(in srgb,var(--warning-base) 10%,var(--surface));
+  --warning-border:color-mix(in srgb,var(--warning-base) 26%,var(--border));
+  --warning-text:color-mix(in srgb,var(--warning-base) 52%,var(--text));
+
+  --shadow:0 8px 24px color-mix(in srgb,var(--text-color) 5%,transparent);
+  --shadow-soft:0 2px 10px color-mix(in srgb,var(--text-color) 4%,transparent);
 }
 
 .stApp,
@@ -57,8 +60,8 @@ st.markdown(
 }
 .stApp{
   background-image:
-    radial-gradient(circle at top left,var(--accent1),transparent 34%),
-    radial-gradient(circle at top right,var(--accent2),transparent 30%)!important;
+    radial-gradient(circle at 8% 0%,var(--accent-glow),transparent 28%),
+    radial-gradient(circle at 96% 5%,color-mix(in srgb,#7c9a8b 5%,transparent),transparent 22%)!important;
 }
 .block-container{max-width:1180px;padding-top:2.2rem;padding-bottom:4rem}
 .stApp h1,.stApp h6,
@@ -67,10 +70,10 @@ st.markdown(
   color:var(--text)!important;
 }
 .stApp h4,.stApp h5{
-  color:color-mix(in srgb,var(--text) 82%,var(--primary))!important;
+  color:color-mix(in srgb,var(--text) 82%,var(--accent))!important;
 }
 .stApp a{
-  color:var(--primary)!important;
+  color:var(--accent-strong)!important;
   text-decoration-thickness:1px;
   text-underline-offset:2px;
 }
@@ -79,22 +82,56 @@ h1,h2,h3{letter-spacing:-.025em}
 
 .hero{
   padding:2.2rem 2.3rem;border-radius:24px;
-  background:linear-gradient(135deg,var(--surface),var(--surface-soft));
-  border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:1.25rem
+  background:var(--surface);
+  border:1px solid var(--border);box-shadow:var(--shadow-soft);margin-bottom:1.25rem
 }
-.eyebrow{display:inline-block;padding:.38rem .72rem;border-radius:999px;background:var(--primary-soft);color:var(--primary);font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:.8rem}
+.eyebrow{
+  display:inline-block;
+  padding:.36rem .68rem;
+  border-radius:999px;
+  background:var(--accent-soft);
+  border:1px solid var(--accent-border);
+  color:var(--accent-strong)!important;
+  font-size:.76rem;
+  font-weight:750;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+  margin-bottom:.8rem
+}
 .hero-title{font-size:clamp(2rem,4vw,3.35rem);line-height:1.03;font-weight:800;color:var(--text);margin:0}
 .hero-copy{max-width:760px;color:var(--muted);font-size:1.06rem;line-height:1.65;margin-top:.85rem;margin-bottom:0}
 .trust-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.1rem}
-.trust-pill{background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:.48rem .78rem;font-size:.86rem;font-weight:600}
-.section-kicker{color:var(--primary);font-weight:700;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.25rem}
-.step-card{min-height:132px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.05rem 1.1rem;box-shadow:var(--shadow)}
-.step-number{width:32px;height:32px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:var(--primary-soft);color:var(--primary);font-weight:800;margin-bottom:.65rem}
+.trust-pill{
+  background:var(--surface-soft);
+  border:1px solid var(--border);
+  color:var(--muted);
+  border-radius:999px;
+  padding:.46rem .76rem;
+  font-size:.85rem;
+  font-weight:600
+}
+.section-kicker{
+  color:var(--accent-strong)!important;
+  font-weight:750;
+  font-size:.76rem;
+  letter-spacing:.075em;
+  text-transform:uppercase;
+  margin-bottom:.3rem;
+}
+.step-card{min-height:132px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.05rem 1.1rem;box-shadow:var(--shadow-soft)}
+.step-number{
+  width:32px;height:32px;border-radius:9px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--accent-soft);
+  border:1px solid var(--accent-border);
+  color:var(--accent-strong)!important;
+  font-weight:800;margin-bottom:.65rem
+}
 .step-title{color:var(--text);font-weight:750;margin-bottom:.2rem}
 .step-copy{color:var(--soft);font-size:.9rem;line-height:1.45}
 
 div[data-testid="stVerticalBlockBorderWrapper"]>div{
-  background:var(--surface)!important;border-color:var(--border)!important;box-shadow:var(--shadow)
+  background:var(--surface)!important;border-color:var(--border)!important;box-shadow:var(--shadow-soft)
 }
 div[data-testid="stForm"]{background:transparent!important;border-color:var(--border)!important}
 
@@ -143,8 +180,8 @@ div[data-testid="stSlider"]{
 
 div[data-testid="stFormSubmitButton"]>button{
   border-radius:12px!important;min-height:3rem!important;font-weight:750!important;
-  background:linear-gradient(135deg,var(--primary),var(--primary2))!important;
-  color:var(--button-text-color,#fff)!important;border:none!important;box-shadow:0 8px 20px color-mix(in srgb,var(--primary) 22%,transparent)
+  background:var(--accent-strong)!important;
+  color:var(--button-text-color,#fff)!important;border:none!important;box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 22%,transparent)
 }
 div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:var(--button-text-color,#fff)!important}
 
@@ -157,7 +194,7 @@ div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:
   font-weight:800;
   letter-spacing:.06em;
   text-transform:uppercase;
-  color:var(--primary);
+  color:var(--accent-strong)!important;
   margin:1rem 0 .45rem 0;
 }
 .item-copy{
@@ -223,7 +260,7 @@ div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:
 .approval-amber .status-value{color:#d97706!important}
 .approval-red .status-value{color:#dc2626!important}
 .next-action{
-  background:var(--primary-soft);
+  background:var(--accent-soft);
   border:1px solid var(--border);
   border-radius:14px;
   padding:1rem 1rem;
@@ -234,14 +271,14 @@ div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:
   text-transform:uppercase;
   letter-spacing:.06em;
   font-weight:800;
-  color:var(--primary);
+  color:var(--accent-strong)!important;
   margin-bottom:.45rem;
 }
 .next-action strong{color:var(--text)}
 .next-action p{margin:.15rem 0 .65rem 0!important;line-height:1.5}
 
-.recommendation-box{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.1rem 1.15rem;margin:.8rem 0;box-shadow:var(--shadow)}
-.recommendation-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:var(--primary);margin-bottom:.45rem}
+.recommendation-box{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.1rem 1.15rem;margin:.8rem 0;box-shadow:var(--shadow-soft)}
+.recommendation-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:var(--accent-strong)!important;margin-bottom:.45rem}
 .recommendation-headline{font-size:1.15rem;font-weight:800;line-height:1.4;color:var(--text)}
 .action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin:.85rem 0 1rem 0}
 .action-card{border:1px solid var(--border);border-radius:14px;padding:.9rem 1rem;background:var(--surface-soft)}
@@ -253,22 +290,6 @@ div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:
 .action-clarify{border-left:5px solid #d97706}
 .action-later{border-left:5px solid #64748b}
 .action-optional{border-left:5px solid #7c3aed}
-html[data-theme="dark"] .stApp h2,
-html[data-theme="dark"] .stApp h3,
-html[data-theme="dark"] .stApp h4,
-html[data-theme="dark"] .stApp h5,
-html[data-theme="dark"] .stApp a,
-html[data-theme="dark"] .section-kicker,
-html[data-theme="dark"] .eyebrow,
-html[data-theme="dark"] .step-number,
-html[data-theme="dark"] .step-title,
-html[data-theme="dark"] .item-section-title,
-html[data-theme="dark"] .next-action-title,
-html[data-theme="dark"] .recommendation-title,
-html[data-theme="dark"] .recommendation-headline{
-  color:var(--brand-accent-dark)!important;
-}
-
 @media(max-width:768px){.action-grid{grid-template-columns:1fr}}
 @media(max-width:768px){
   .status-grid{grid-template-columns:1fr}
