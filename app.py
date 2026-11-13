@@ -59,8 +59,14 @@ st.markdown(
     radial-gradient(circle at top right,var(--accent2),transparent 30%)!important;
 }
 .block-container{max-width:1180px;padding-top:2.2rem;padding-bottom:4rem}
-.stApp h1,.stApp h2,.stApp h3,.stApp h4,.stApp h5,.stApp h6,
+.stApp h1,.stApp h6,
 .stApp p,.stApp label,[data-testid="stMarkdownContainer"]{color:var(--text)!important}
+.stApp h2,.stApp h3,.stApp h4,.stApp h5{
+  color:var(--primary)!important;
+}
+.stApp a{
+  color:var(--primary)!important;
+}
 [data-testid="stCaptionContainer"] p{color:var(--soft)!important}
 h1,h2,h3{letter-spacing:-.025em}
 
@@ -77,7 +83,7 @@ h1,h2,h3{letter-spacing:-.025em}
 .section-kicker{color:var(--primary);font-weight:700;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.25rem}
 .step-card{min-height:132px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.05rem 1.1rem;box-shadow:var(--shadow)}
 .step-number{width:32px;height:32px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:var(--primary-soft);color:var(--primary);font-weight:800;margin-bottom:.65rem}
-.step-title{color:var(--text);font-weight:750;margin-bottom:.2rem}
+.step-title{color:var(--primary);font-weight:750;margin-bottom:.2rem}
 .step-copy{color:var(--soft);font-size:.9rem;line-height:1.45}
 
 div[data-testid="stVerticalBlockBorderWrapper"]>div{
@@ -229,10 +235,10 @@ div[data-testid="stFormSubmitButton"]>button:hover{filter:brightness(.96);color:
 
 .recommendation-box{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.1rem 1.15rem;margin:.8rem 0;box-shadow:var(--shadow)}
 .recommendation-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:var(--primary);margin-bottom:.45rem}
-.recommendation-headline{font-size:1.15rem;font-weight:800;line-height:1.4;color:var(--text)}
+.recommendation-headline{font-size:1.15rem;font-weight:800;line-height:1.4;color:var(--primary)}
 .action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin:.85rem 0 1rem 0}
 .action-card{border:1px solid var(--border);border-radius:14px;padding:.9rem 1rem;background:var(--surface-soft)}
-.action-card h4{margin:0 0 .45rem 0!important;font-size:.94rem!important}
+.action-card h4{margin:0 0 .45rem 0!important;font-size:.94rem!important;color:var(--text)!important}
 .action-card ul{margin:.25rem 0 0 1rem;padding:0}
 .action-card li{margin:.25rem 0;line-height:1.45}
 .action-now{border-left:5px solid #dc2626}
